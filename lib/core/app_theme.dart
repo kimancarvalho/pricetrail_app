@@ -1,60 +1,91 @@
 import 'package:flutter/material.dart';
 import 'app_constants.dart';
 
-/// Define os temas claro e escuro da aplicação.
+/// Define o tema visual da aplicação PriceTrail.
 /// Centralizar aqui permite mudar o visual da app inteira num só lugar.
 class AppTheme {
   AppTheme._();
 
-  // Cor principal da app — mudar aqui afeta toda a app
-  static const Color _primaryColor = Color(0xFF7C3AED);
-  static const Color _secondaryColor = Color(0xFFEC4899);
-
-  /// Tema claro
   static ThemeData get light => ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: _primaryColor,
-      secondary: _secondaryColor,
-      brightness: Brightness.light,
+    scaffoldBackgroundColor: AppConstants.backgroundColor,
+    colorScheme: const ColorScheme.light(
+      primary: AppConstants.primaryColor,
+      secondary: AppConstants.primaryLight,
+      error: AppConstants.errorColor,
+      surface: AppConstants.surfaceColor,
     ),
-    scaffoldBackgroundColor: const Color(0xFFFAF8FF),
+    // Estilo global dos cards
     cardTheme: CardThemeData(
       elevation: AppConstants.elevationCard,
+      color: AppConstants.surfaceColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppConstants.radiusM),
+        side: const BorderSide(color: AppConstants.borderColor),
       ),
-      color: Colors.white,
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      selectedItemColor: _primaryColor,
-      unselectedItemColor: Colors.grey,
-      backgroundColor: Colors.white,
-      elevation: 8,
+    // Estilo global dos botões primários
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppConstants.primaryColor,
+        foregroundColor: AppConstants.surfaceColor,
+        minimumSize: const Size(double.infinity, 52),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.radiusM),
+        ),
+        textStyle: const TextStyle(
+          fontSize: AppConstants.fontSizeBody,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     ),
-  );
-
-  /// Tema escuro
-  static ThemeData get dark => ThemeData(
-    useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: _primaryColor,
-      secondary: _secondaryColor,
-      brightness: Brightness.dark,
-    ),
-    scaffoldBackgroundColor: const Color(0xFF0F0A1E),
-    cardTheme: CardThemeData(
-      elevation: AppConstants.elevationCard,
-      shape: RoundedRectangleBorder(
+    // Estilo global dos campos de texto
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppConstants.surfaceColor,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppConstants.spacingL,
+        vertical: AppConstants.spacingM,
+      ),
+      border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppConstants.radiusM),
+        borderSide: const BorderSide(color: AppConstants.borderColor),
       ),
-      color: const Color(0xFF1E1535),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppConstants.radiusM),
+        borderSide: const BorderSide(color: AppConstants.borderColor),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppConstants.radiusM),
+        borderSide: const BorderSide(
+          color: AppConstants.primaryColor,
+          width: 2,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppConstants.radiusM),
+        borderSide: const BorderSide(color: AppConstants.errorColor),
+      ),
     ),
+    // Estilo global da AppBar
+    appBarTheme: const AppBarTheme(
+      backgroundColor: AppConstants.backgroundColor,
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: TextStyle(
+        color: AppConstants.textPrimary,
+        fontSize: AppConstants.fontSizeTitle,
+        fontWeight: FontWeight.bold,
+      ),
+      iconTheme: IconThemeData(color: AppConstants.textPrimary),
+    ),
+    // Estilo global do BottomNavigationBar
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      selectedItemColor: _primaryColor,
-      unselectedItemColor: Colors.grey,
-      backgroundColor: Color(0xFF1E1535),
+      backgroundColor: AppConstants.surfaceColor,
+      selectedItemColor: AppConstants.primaryColor,
+      unselectedItemColor: AppConstants.textSecondary,
       elevation: 8,
+      type: BottomNavigationBarType.fixed,
     ),
   );
 }

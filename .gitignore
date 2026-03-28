@@ -43,3 +43,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Variáveis de ambiente
+.env
+
+# Firebase — gerado automaticamente com dados sensíveis
+google-services.json
+GoogleService-Info.plist
+
+# Ficheiro gerado pelo FlutterFire com as configurações do Firebase
+lib/firebase_options.dart
