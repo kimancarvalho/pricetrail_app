@@ -34,12 +34,20 @@ class DatabaseService {
         );
   }
 
-  /// Cria uma nova lista de compras no Firestore
-  static Future<void> createShoppingList({
+  /// Devolve as listas uma única vez — usado no bottom sheet do Explore
+  static Future<List<ShoppingList>> getShoppingListsOnce(String userId) async {
+    final snapshot = await _listsRef(
+      userId,
+    ).orderBy('createdAt', descending: true).get();
+    return snapshot.docs.map((doc) => ShoppingList.fromFirestore(doc)).toList();
+  }
+
+  /// Cria uma nova lista e devolve o ID gerado
+  static Future<String> createShoppingList({
     required String userId,
     required String name,
   }) async {
-    await _listsRef(userId).add({
+    final doc = await _listsRef(userId).add({
       'name': name,
       'itemCount': 0,
       'estimatedTotal': 0.0,
@@ -47,6 +55,7 @@ class DatabaseService {
       'createdAt': Timestamp.now(),
       'completedAt': null,
     });
+    return doc.id;
   }
 
   /// Elimina uma lista de compras
@@ -71,8 +80,8 @@ class DatabaseService {
   static CollectionReference _itemsRef(String userId, String listId) =>
       _listsRef(userId).doc(listId).collection('items');
 
-  /// Adiciona um produto a uma lista de compras
-  static Future<void> addItemToList({
+  /// Adiciona um produto e devolve o itemId gerado
+  static Future<String?> addItemToList({
     required String userId,
     required String listId,
     required String productId,
@@ -80,16 +89,15 @@ class DatabaseService {
     required String productImageUrl,
     required double averagePrice,
   }) async {
-    // Verifica se o produto já existe na lista para evitar duplicados
+    // Verifica duplicados
     final existing = await _itemsRef(
       userId,
       listId,
     ).where('productId', isEqualTo: productId).get();
 
-    if (existing.docs.isNotEmpty) return;
+    if (existing.docs.isNotEmpty) return existing.docs.first.id;
 
-    // Adiciona o item
-    await _itemsRef(userId, listId).add({
+    final doc = await _itemsRef(userId, listId).add({
       'productId': productId,
       'productName': productName,
       'productImageUrl': productImageUrl,
@@ -98,11 +106,13 @@ class DatabaseService {
       'addedAt': FieldValue.serverTimestamp(),
     });
 
-    // Atualiza o contador e total estimado da lista
+    // Atualiza o contador e total da lista
     await _listsRef(userId).doc(listId).update({
       'itemCount': FieldValue.increment(1),
       'estimatedTotal': FieldValue.increment(averagePrice),
     });
+
+    return doc.id;
   }
 
   /// Remove um produto de uma lista

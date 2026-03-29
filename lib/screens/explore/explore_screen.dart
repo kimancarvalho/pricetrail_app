@@ -4,17 +4,43 @@ import '../../core/app_constants.dart';
 import '../../models/product.dart';
 import '../../services/product_service.dart';
 import '../../widgets/product_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../services/database_service.dart';
 
 /// Ecrã de pesquisa e descoberta de produtos.
 /// Usa Open Food Facts API com debounce para pesquisa eficiente.
 class ExploreScreen extends StatefulWidget {
-  const ExploreScreen({super.key});
+  /// Lista ativa — preenchida quando o utilizador vem do Home.
+  /// null quando acede diretamente pelo tab.
+  final String? activeListId;
+  final String? activeListName;
+
+  /// Callback para notificar o MainScreen quando uma lista é selecionada
+  final Function(String listId, String listName)? onListSelected;
+
+  const ExploreScreen({
+    super.key,
+    this.activeListId,
+    this.activeListName,
+    this.onListSelected,
+  });
 
   @override
   State<ExploreScreen> createState() => _ExploreScreenState();
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
+  // Lista ativa — pode ser definida ao chegar do Home
+  // ou após o utilizador selecionar/criar uma lista no Explore
+  String? _activeListId;
+  String? _activeListName;
+
+  // Mapeia productId → itemId do Firestore para poder remover
+  final Map<String, String> _itemIds = {};
+
+  // ID do utilizador atual
+  final String _userId = FirebaseAuth.instance.currentUser!.uid;
+
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounceTimer;
 
@@ -28,6 +54,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   // Filtro ativo
   String _activeFilter = AppConstants.filterAll;
+
+  @override
+  void initState() {
+    super.initState();
+    // Se veio do Home com lista ativa, usa-a
+    _activeListId = widget.activeListId;
+    _activeListName = widget.activeListName;
+  }
 
   @override
   void dispose() {
@@ -93,28 +127,310 @@ class _ExploreScreenState extends State<ExploreScreen> {
     }).toList();
   }
 
-  /// Adiciona ou remove um produto da lista
-  void _toggleProduct(String productId) {
-    setState(() {
-      if (_addedProducts.contains(productId)) {
-        _addedProducts.remove(productId);
-      } else {
-        _addedProducts.add(productId);
+  /// Chamado quando o utilizador clica em + num produto.
+  /// Gere os dois fluxos: com lista ativa e sem lista ativa.
+  Future<void> _toggleProduct(
+    String productId,
+    double avgPrice,
+    String productName,
+    String productImageUrl,
+  ) async {
+    // Se já está adicionado — remove
+    if (_addedProducts.contains(productId)) {
+      final itemId = _itemIds[productId];
+      if (itemId != null && _activeListId != null) {
+        await DatabaseService.removeItemFromList(
+          userId: _userId,
+          listId: _activeListId!,
+          itemId: itemId,
+          averagePrice: avgPrice,
+        );
       }
+      setState(() {
+        _addedProducts.remove(productId);
+        _itemIds.remove(productId);
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Removed from list'),
+            duration: Duration(seconds: 1),
+            backgroundColor: AppConstants.textSecondary,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Não há lista ativa — mostra opções ao utilizador
+    if (_activeListId == null) {
+      await _showListSelectionSheet(
+        productId,
+        avgPrice,
+        productName,
+        productImageUrl,
+      );
+      return;
+    }
+
+    // Há lista ativa — adiciona diretamente
+    await _addProductToList(productId, avgPrice, productName, productImageUrl);
+  }
+
+  /// Adiciona o produto à lista ativa no Firestore
+  Future<void> _addProductToList(
+    String productId,
+    double avgPrice,
+    String productName,
+    String productImageUrl,
+  ) async {
+    final itemId = await DatabaseService.addItemToList(
+      userId: _userId,
+      listId: _activeListId!,
+      productId: productId,
+      productName: productName,
+      productImageUrl: productImageUrl,
+      averagePrice: avgPrice,
+    );
+
+    setState(() {
+      _addedProducts.add(productId);
+      if (itemId != null) _itemIds[productId] = itemId;
     });
 
-    // Feedback ao utilizador
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _addedProducts.contains(productId)
-              ? 'Product added to list'
-              : 'Product removed from list',
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Added to "$_activeListName" ✓'),
+          duration: const Duration(seconds: 1),
+          backgroundColor: AppConstants.primaryColor,
         ),
-        duration: const Duration(seconds: 1),
-        backgroundColor: _addedProducts.contains(productId)
-            ? AppConstants.primaryColor
-            : AppConstants.textSecondary,
+      );
+    }
+  }
+
+  /// Mostra bottom sheet para selecionar ou criar uma lista
+  Future<void> _showListSelectionSheet(
+    String productId,
+    double avgPrice,
+    String productName,
+    String productImageUrl,
+  ) async {
+    // Busca as listas existentes do utilizador
+    final lists = await DatabaseService.getShoppingListsOnce(_userId);
+
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppConstants.radiusM),
+        ),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(AppConstants.spacingL),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppConstants.borderColor,
+                  borderRadius: BorderRadius.circular(AppConstants.radiusS),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppConstants.spacingL),
+            const Text(
+              'Add to a list',
+              style: TextStyle(
+                fontSize: AppConstants.fontSizeTitle,
+                fontWeight: FontWeight.bold,
+                color: AppConstants.textPrimary,
+              ),
+            ),
+            const SizedBox(height: AppConstants.spacingS),
+            const Text(
+              'Select an existing list or create a new one',
+              style: TextStyle(
+                fontSize: AppConstants.fontSizeSmall,
+                color: AppConstants.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppConstants.spacingL),
+
+            // Listas existentes
+            if (lists.isNotEmpty) ...[
+              ...lists.map(
+                (list) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppConstants.primaryLight,
+                      borderRadius: BorderRadius.circular(AppConstants.radiusS),
+                    ),
+                    child: const Icon(
+                      Icons.shopping_bag_outlined,
+                      color: AppConstants.primaryColor,
+                      size: 20,
+                    ),
+                  ),
+                  title: Text(
+                    list.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppConstants.textPrimary,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '${list.itemCount} items',
+                    style: const TextStyle(
+                      fontSize: AppConstants.fontSizeSmall,
+                      color: AppConstants.textSecondary,
+                    ),
+                  ),
+                  onTap: () async {
+                    // Seleciona esta lista e fecha o bottom sheet
+                    setState(() {
+                      _activeListId = list.id;
+                      _activeListName = list.name;
+                    });
+                    // Notifica o MainScreen da lista selecionada
+                    widget.onListSelected?.call(list.id, list.name);
+                    Navigator.pop(context);
+                    await _addProductToList(
+                      productId,
+                      avgPrice,
+                      productName,
+                      productImageUrl,
+                    );
+                  },
+                ),
+              ),
+              const Divider(color: AppConstants.borderColor),
+            ],
+
+            // Opção de criar nova lista
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppConstants.primaryLight,
+                  borderRadius: BorderRadius.circular(AppConstants.radiusS),
+                ),
+                child: const Icon(
+                  Icons.add,
+                  color: AppConstants.primaryColor,
+                  size: 20,
+                ),
+              ),
+              title: const Text(
+                'Create new list',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: AppConstants.primaryColor,
+                ),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                await _showCreateListDialog(
+                  productId,
+                  avgPrice,
+                  productName,
+                  productImageUrl,
+                );
+              },
+            ),
+            const SizedBox(height: AppConstants.spacingL),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Dialog para criar uma nova lista e adicionar o produto de imediato
+  Future<void> _showCreateListDialog(
+    String productId,
+    double avgPrice,
+    String productName,
+    String productImageUrl,
+  ) async {
+    final controller = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.radiusM),
+        ),
+        title: const Text(
+          'New Shopping List',
+          style: TextStyle(
+            fontSize: AppConstants.fontSizeTitle,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(hintText: 'e.g. Weekly Groceries'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppConstants.textSecondary),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (controller.text.trim().isEmpty) return;
+
+              // Cria a lista no Firestore
+              final listId = await DatabaseService.createShoppingList(
+                userId: _userId,
+                name: controller.text.trim(),
+              );
+
+              if (context.mounted) Navigator.pop(context);
+
+              // Define como lista ativa e adiciona o produto
+              setState(() {
+                _activeListId = listId;
+                _activeListName = controller.text.trim();
+              });
+              // Notifica o MainScreen da nova lista criada
+              widget.onListSelected?.call(listId, controller.text.trim());
+
+              await _addProductToList(
+                productId,
+                avgPrice,
+                productName,
+                productImageUrl,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              minimumSize: Size.zero,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.spacingL,
+                vertical: AppConstants.spacingS,
+              ),
+            ),
+            child: const Text('Create'),
+          ),
+        ],
       ),
     );
   }
@@ -164,13 +480,36 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ),
         ),
         const SizedBox(width: AppConstants.spacingM),
-        const Text(
-          'Explore Products',
-          style: TextStyle(
-            fontSize: AppConstants.fontSizeTitle,
-            fontWeight: FontWeight.bold,
-            color: AppConstants.textPrimary,
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Explore Products',
+              style: TextStyle(
+                fontSize: AppConstants.fontSizeTitle,
+                fontWeight: FontWeight.bold,
+                color: AppConstants.textPrimary,
+              ),
+            ),
+            // Mostra a lista ativa se existir
+            if (_activeListName != null)
+              Text(
+                'Adding to: $_activeListName',
+                style: const TextStyle(
+                  fontSize: AppConstants.fontSizeSmall,
+                  color: AppConstants.primaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              )
+            else
+              const Text(
+                'Select a list to add products',
+                style: TextStyle(
+                  fontSize: AppConstants.fontSizeSmall,
+                  color: AppConstants.textSecondary,
+                ),
+              ),
+          ],
         ),
       ],
     );
@@ -330,11 +669,24 @@ class _ExploreScreenState extends State<ExploreScreen> {
             itemCount: filtered.length,
             separatorBuilder: (_, __) =>
                 const SizedBox(height: AppConstants.spacingS),
-            itemBuilder: (context, index) => ProductCard(
-              product: filtered[index],
-              isAdded: _addedProducts.contains(filtered[index].id),
-              onAdd: () => _toggleProduct(filtered[index].id),
-            ),
+            itemBuilder: (context, index) {
+              final product = filtered[index];
+              final prices = ProductService.getSimulatedPrices(product.id);
+              final avgPrice =
+                  prices.map((p) => p.price).reduce((a, b) => a + b) /
+                  prices.length;
+
+              return ProductCard(
+                product: product,
+                isAdded: _addedProducts.contains(product.id),
+                onAdd: () => _toggleProduct(
+                  product.id,
+                  avgPrice,
+                  product.name,
+                  product.imageUrl,
+                ),
+              );
+            },
           ),
         ),
       ],

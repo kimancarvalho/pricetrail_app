@@ -8,7 +8,11 @@ import '../../services/database_service.dart';
 /// Home Dashboard — ecrã principal da app.
 /// Mostra o resumo mensal e as listas de compras do utilizador.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  /// Callback chamado quando o utilizador clica numa lista
+  /// para navegar para o Explore com a lista ativa.
+  final Function(String listId, String listName) onNavigateToExplore;
+
+  const HomeScreen({super.key, required this.onNavigateToExplore});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -375,10 +379,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Card de uma lista de compras — fiel ao mockup
+  /// Card de uma lista de compras
   Widget _buildListCard(ShoppingList list) {
     return Dismissible(
-      // Permite eliminar a lista deslizando para a esquerda
       key: ValueKey(list.id),
       direction: DismissDirection.endToStart,
       background: Container(
@@ -395,67 +398,68 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       onDismissed: (_) =>
           DatabaseService.deleteShoppingList(userId: _userId, listId: list.id),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(AppConstants.spacingL),
-          child: Row(
-            children: [
-              // Ícone da lista
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: list.isCompleted
-                      ? Colors.grey.shade100
-                      : AppConstants.primaryLight,
-                  borderRadius: BorderRadius.circular(AppConstants.radiusS),
-                  border: list.isCompleted
-                      ? Border.all(color: AppConstants.borderColor)
-                      : null,
+      // GestureDetector envolve o Card para detetar o toque
+      child: GestureDetector(
+        onTap: () => widget.onNavigateToExplore(list.id, list.name),
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(AppConstants.spacingL),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: list.isCompleted
+                        ? Colors.grey.shade100
+                        : AppConstants.primaryLight,
+                    borderRadius: BorderRadius.circular(AppConstants.radiusS),
+                    border: list.isCompleted
+                        ? Border.all(color: AppConstants.borderColor)
+                        : null,
+                  ),
+                  child: Icon(
+                    Icons.shopping_bag_outlined,
+                    color: list.isCompleted
+                        ? AppConstants.textSecondary
+                        : AppConstants.primaryColor,
+                  ),
                 ),
-                child: Icon(
-                  Icons.shopping_bag_outlined,
-                  color: list.isCompleted
-                      ? AppConstants.textSecondary
-                      : AppConstants.primaryColor,
-                ),
-              ),
-              const SizedBox(width: AppConstants.spacingM),
-              // Nome e detalhes
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      list.name,
-                      style: TextStyle(
-                        fontSize: AppConstants.fontSizeBody,
-                        fontWeight: FontWeight.bold,
-                        color: AppConstants.textPrimary,
-                        // Riscado se a lista estiver completa
-                        decoration: list.isCompleted
-                            ? TextDecoration.lineThrough
-                            : null,
+                const SizedBox(width: AppConstants.spacingM),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        list.name,
+                        style: TextStyle(
+                          fontSize: AppConstants.fontSizeBody,
+                          fontWeight: FontWeight.bold,
+                          color: AppConstants.textPrimary,
+                          decoration: list.isCompleted
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: AppConstants.spacingXS),
-                    Text(
-                      list.isCompleted
-                          ? 'Completed ${_formatDate(list.completedAt!)}'
-                          : '${list.itemCount} items • Est. \$${list.estimatedTotal.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: AppConstants.fontSizeSmall,
-                        color: AppConstants.textSecondary,
+                      const SizedBox(height: AppConstants.spacingXS),
+                      Text(
+                        list.isCompleted
+                            ? 'Completed ${_formatDate(list.completedAt!)}'
+                            : '${list.itemCount} items • Est. \$${list.estimatedTotal.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: AppConstants.fontSizeSmall,
+                          color: AppConstants.textSecondary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Icon(
-                Icons.chevron_right,
-                color: AppConstants.textSecondary,
-              ),
-            ],
+                const Icon(
+                  Icons.chevron_right,
+                  color: AppConstants.textSecondary,
+                ),
+              ],
+            ),
           ),
         ),
       ),

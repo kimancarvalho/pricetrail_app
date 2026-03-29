@@ -17,24 +17,41 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = AppConstants.tabLists;
 
-  // Ecrãs dos 4 tabs — instanciados uma vez e reutilizados
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    ExploreScreen(),
-    RouteScreen(),
-    ProfileScreen(),
-  ];
+  String? _activeListId;
+  String? _activeListName;
+
+  void _navigateToExplore(String listId, String listName) {
+    setState(() {
+      _activeListId = listId;
+      _activeListName = listName;
+      _currentIndex = AppConstants.tabExplore;
+    });
+  }
+
+  /// Chamado quando o Explore define uma lista ativa internamente
+  void _onListSelectedInExplore(String listId, String listName) {
+    setState(() {
+      _activeListId = listId;
+      _activeListName = listName;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AnimatedSwitcher adiciona transição suave entre tabs
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: AppConstants.animationFastMs),
-        child: KeyedSubtree(
-          key: ValueKey(_currentIndex),
-          child: _screens[_currentIndex],
-        ),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          HomeScreen(onNavigateToExplore: _navigateToExplore),
+          ExploreScreen(
+            // key força recriação quando a lista ativa muda
+            key: ValueKey('$_activeListId-$_activeListName'),
+            activeListId: _activeListId,
+            activeListName: _activeListName,
+          ),
+          const RouteScreen(),
+          const ProfileScreen(),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
