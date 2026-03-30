@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/product.dart';
 import '../models/store_price.dart';
+import '../core/app_constants.dart';
 
 /// Serviço responsável por pesquisar produtos via Open Food Facts API
 /// e simular preços por loja via dados locais.
@@ -103,7 +104,7 @@ class ProductService {
 
     final uri = Uri.parse(
       '$_baseUrl/cgi/search.pl?search_terms=${Uri.encodeComponent(query)}'
-      '&search_simple=1&action=process&json=1&page_size=20'
+      '&search_simple=1&action=process&json=1&page_size=${AppConstants.pageSize}'
       '&fields=code,product_name,brands,image_front_url,quantity,categories_tags',
     );
 

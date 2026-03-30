@@ -4,6 +4,7 @@ import '../../core/app_constants.dart';
 import '../../models/monthly_summary.dart';
 import '../../models/shopping_list.dart';
 import '../../services/database_service.dart';
+import '../../screens/details/listdetail_screen.dart';
 
 /// Home Dashboard — ecrã principal da app.
 /// Mostra o resumo mensal e as listas de compras do utilizador.
@@ -185,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Card verde de resumo mensal — fiel ao mockup
+  /// Card verde de resumo mensal
   Widget _buildMonthlySummaryCard() {
     final monthName = _getMonthName(DateTime.now().month);
     final growth = _summary!.savingsGrowth;
@@ -337,6 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
 
+        //?? [] garante que há sempre uma lista, mesmo que vazia.
         final lists = snapshot.data ?? [];
 
         // Estado vazio
@@ -379,7 +381,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Card de uma lista de compras
+  /// Card de uma lista de compras. Dismissible permite eliminar o widget com swipe
   Widget _buildListCard(ShoppingList list) {
     return Dismissible(
       key: ValueKey(list.id),
@@ -400,7 +402,18 @@ class _HomeScreenState extends State<HomeScreen> {
           DatabaseService.deleteShoppingList(userId: _userId, listId: list.id),
       // GestureDetector envolve o Card para detetar o toque
       child: GestureDetector(
-        onTap: () => widget.onNavigateToExplore(list.id, list.name),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ListDetailScreen(
+                userId: _userId,
+                list: list,
+                onNavigateToExplore: widget.onNavigateToExplore,
+              ),
+            ),
+          );
+        },
         child: Card(
           child: Padding(
             padding: const EdgeInsets.all(AppConstants.spacingL),

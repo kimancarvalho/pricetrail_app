@@ -493,12 +493,41 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
             // Mostra a lista ativa se existir
             if (_activeListName != null)
-              Text(
-                'Adding to: $_activeListName',
-                style: const TextStyle(
-                  fontSize: AppConstants.fontSizeSmall,
-                  color: AppConstants.primaryColor,
-                  fontWeight: FontWeight.w500,
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade100,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Lista: $_activeListName',
+                        style: const TextStyle(
+                          fontSize: AppConstants.fontSizeSmall,
+                          color: AppConstants.textPrimary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {
+                          // Limpa lista ativa
+                          setState(() {
+                            _activeListId = null;
+                            _activeListName = null;
+                          });
+                        },
+                        child: const Icon(Icons.close, size: 18),
+                      ),
+                    ],
+                  ),
                 ),
               )
             else

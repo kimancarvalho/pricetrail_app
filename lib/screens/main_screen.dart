@@ -20,19 +20,13 @@ class _MainScreenState extends State<MainScreen> {
   String? _activeListId;
   String? _activeListName;
 
+  //chamado pelo HomeScreen quando o utilizador clica numa lista. Faz duas coisas: define a lista ativa
+  //E muda o tab para o Explore
   void _navigateToExplore(String listId, String listName) {
     setState(() {
       _activeListId = listId;
       _activeListName = listName;
       _currentIndex = AppConstants.tabExplore;
-    });
-  }
-
-  /// Chamado quando o Explore define uma lista ativa internamente
-  void _onListSelectedInExplore(String listId, String listName) {
-    setState(() {
-      _activeListId = listId;
-      _activeListName = listName;
     });
   }
 

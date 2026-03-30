@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Column(
         children: [
           // Logo real da app
-          Image.asset(AppConstants.iconPath, width: 72, height: 72),
+          Image.asset(AppConstants.logoPath, width: 72, height: 72),
           const SizedBox(height: AppConstants.spacingM),
           const Text(
             'PriceTrail',
@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  /// Banner de erro — fiel ao mockup (fundo vermelho, texto branco)
+  /// Banner de erro
   Widget _buildErrorBanner() {
     return Container(
       width: double.infinity,
