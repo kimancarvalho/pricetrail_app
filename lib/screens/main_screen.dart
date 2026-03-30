@@ -19,13 +19,15 @@ class _MainScreenState extends State<MainScreen> {
 
   String? _activeListId;
   String? _activeListName;
+  int _activeListItemCount = 0;
 
   //chamado pelo HomeScreen quando o utilizador clica numa lista. Faz duas coisas: define a lista ativa
   //E muda o tab para o Explore
-  void _navigateToExplore(String listId, String listName) {
+  void _navigateToExplore(String listId, String listName, int itemCount) {
     setState(() {
       _activeListId = listId;
       _activeListName = listName;
+      _activeListItemCount = itemCount;
       _currentIndex = AppConstants.tabExplore;
     });
   }
@@ -42,6 +44,7 @@ class _MainScreenState extends State<MainScreen> {
             key: ValueKey('$_activeListId-$_activeListName'),
             activeListId: _activeListId,
             activeListName: _activeListName,
+            initialItemCount: _activeListItemCount,
           ),
           const RouteScreen(),
           const ProfileScreen(),

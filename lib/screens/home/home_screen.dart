@@ -11,7 +11,8 @@ import '../../screens/details/listdetail_screen.dart';
 class HomeScreen extends StatefulWidget {
   /// Callback chamado quando o utilizador clica numa lista
   /// para navegar para o Explore com a lista ativa.
-  final Function(String listId, String listName) onNavigateToExplore;
+  final Function(String listId, String listName, int itemCount)
+  onNavigateToExplore;
 
   const HomeScreen({super.key, required this.onNavigateToExplore});
 

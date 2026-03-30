@@ -14,6 +14,7 @@ class ExploreScreen extends StatefulWidget {
   /// null quando acede diretamente pelo tab.
   final String? activeListId;
   final String? activeListName;
+  final int initialItemCount;
 
   /// Callback para notificar o MainScreen quando uma lista é selecionada
   final Function(String listId, String listName)? onListSelected;
@@ -22,6 +23,7 @@ class ExploreScreen extends StatefulWidget {
     super.key,
     this.activeListId,
     this.activeListName,
+    this.initialItemCount = 0,
     this.onListSelected,
   });
 
@@ -34,6 +36,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
   // ou após o utilizador selecionar/criar uma lista no Explore
   String? _activeListId;
   String? _activeListName;
+
+  // Total de items = os que já existiam + os adicionados nesta sessão
+  int get _totalItemCount => widget.initialItemCount + _addedProducts.length;
 
   // Mapeia productId → itemId do Firestore para poder remover
   final Map<String, String> _itemIds = {};
@@ -456,7 +461,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         ),
       ),
       // Botão de otimizar rota — só visível quando há produtos adicionados
-      bottomNavigationBar: _addedProducts.isNotEmpty
+      bottomNavigationBar: _activeListId != null && _totalItemCount > 0
           ? _buildOptimizeButton()
           : null,
     );
@@ -730,7 +735,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         onPressed: () {
           // TODO — navegar para Route Screen com os produtos selecionados
         },
-        child: Text('Optimize Route (${_addedProducts.length} Items)'),
+        child: Text('Optimize Route ($_totalItemCount Items)'),
       ),
     );
   }

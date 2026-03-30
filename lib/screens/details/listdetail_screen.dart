@@ -4,10 +4,11 @@ import '../../models/list_item.dart';
 import '../../services/database_service.dart';
 import '../../core/app_constants.dart';
 
-class ListDetailScreen extends StatelessWidget {
+class ListDetailScreen extends StatefulWidget {
   final String userId;
   final ShoppingList list;
-  final void Function(String listId, String listName) onNavigateToExplore;
+  final void Function(String listId, String listName, int itemCount)
+  onNavigateToExplore;
 
   const ListDetailScreen({
     super.key,
@@ -17,53 +18,58 @@ class ListDetailScreen extends StatelessWidget {
   });
 
   @override
+  State<ListDetailScreen> createState() => _ListDetailScreenState();
+}
+
+class _ListDetailScreenState extends State<ListDetailScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(list.name)),
-      body: Column(
-        children: [
-          //RESUMO DA LISTA
-          _buildHeader(),
+      appBar: AppBar(title: Text(widget.list.name)),
+      body: StreamBuilder<List<ListItem>>(
+        stream: DatabaseService.getListItems(
+          userId: widget.userId,
+          listId: widget.list.id,
+        ),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-          //LISTA DE ITEMS
-          Expanded(
-            child: StreamBuilder<List<ListItem>>(
-              stream: DatabaseService.getListItems(
-                userId: userId,
-                listId: list.id,
+          final items = snapshot.data ?? [];
+
+          return Column(
+            children: [
+              // RESUMO DA LISTA
+              _buildHeader(items.length),
+
+              // LISTA DE ITEMS
+              Expanded(
+                child: items.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(AppConstants.spacingM),
+                        itemCount: items.length,
+                        itemBuilder: (context, index) =>
+                            _buildItemTile(context, items[index]),
+                      ),
               ),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
 
-                final items = snapshot.data ?? [];
+              // BOTÃO OPTIMIZE — só visível quando há items
+              if (items.isNotEmpty) _buildOptimizeButton(context, items.length),
 
-                if (items.isEmpty) {
-                  return _buildEmptyState();
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(AppConstants.spacingM),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    return _buildItemTile(context, item);
-                  },
-                );
-              },
-            ),
-          ),
-
-          // BOTÃO ADICIONAR
-          _buildAddButton(context),
-        ],
+              // BOTÃO ADICIONAR — sempre visível
+              _buildAddButton(context, items.length),
+            ],
+          );
+        },
       ),
     );
   }
 
-  //HEADER
-  Widget _buildHeader() {
+  // HEADER — usa items.length em vez de list.itemCount
+  // porque o stream é sempre mais recente que o snapshot da lista
+  Widget _buildHeader(int itemCount) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppConstants.spacingL),
@@ -71,7 +77,7 @@ class ListDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${list.itemCount} itens',
+            '$itemCount itens',
             style: const TextStyle(
               fontSize: AppConstants.fontSizeSmall,
               color: AppConstants.textSecondary,
@@ -79,7 +85,7 @@ class ListDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Estimado: \$${list.estimatedTotal.toStringAsFixed(2)}',
+            'Estimado: \$${widget.list.estimatedTotal.toStringAsFixed(2)}',
             style: const TextStyle(
               fontSize: AppConstants.fontSizeBody,
               fontWeight: FontWeight.bold,
@@ -90,7 +96,7 @@ class ListDetailScreen extends StatelessWidget {
     );
   }
 
-  //ITEM
+  // ITEM
   Widget _buildItemTile(BuildContext context, ListItem item) {
     return Dismissible(
       key: ValueKey(item.id),
@@ -103,8 +109,8 @@ class ListDetailScreen extends StatelessWidget {
       ),
       onDismissed: (_) {
         DatabaseService.removeItemFromList(
-          userId: userId,
-          listId: list.id,
+          userId: widget.userId,
+          listId: widget.list.id,
           itemId: item.id,
           averagePrice: item.averagePrice,
         );
@@ -121,9 +127,8 @@ class ListDetailScreen extends StatelessWidget {
               ? Image.network(
                   item.productImageUrl,
                   width: 40,
-                  errorBuilder: (_, __, ___) {
-                    return const Icon(Icons.shopping_bag_outlined);
-                  },
+                  errorBuilder: (_, __, ___) =>
+                      const Icon(Icons.shopping_bag_outlined),
                 )
               : const Icon(Icons.shopping_bag_outlined),
           title: Text(item.productName),
@@ -132,12 +137,11 @@ class ListDetailScreen extends StatelessWidget {
             icon: const Icon(Icons.remove_circle_outline),
             onPressed: () {
               DatabaseService.removeItemFromList(
-                userId: userId,
-                listId: list.id,
+                userId: widget.userId,
+                listId: widget.list.id,
                 itemId: item.id,
                 averagePrice: item.averagePrice,
               );
-
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('${item.productName} removido')),
               );
@@ -158,8 +162,30 @@ class ListDetailScreen extends StatelessWidget {
     );
   }
 
-  //BOTÃO ADICIONAR
-  Widget _buildAddButton(BuildContext context) {
+  // BOTÃO OPTIMIZE ROUTE
+  Widget _buildOptimizeButton(BuildContext context, int itemCount) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppConstants.spacingM,
+        0,
+        AppConstants.spacingM,
+        AppConstants.spacingS,
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            // TODO — navegar para Route Screen
+          },
+          icon: const Icon(Icons.route),
+          label: Text('Optimize Route ($itemCount Items)'),
+        ),
+      ),
+    );
+  }
+
+  // BOTÃO ADICIONAR
+  Widget _buildAddButton(BuildContext context, int itemCount) {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(AppConstants.spacingM),
@@ -167,11 +193,12 @@ class ListDetailScreen extends StatelessWidget {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () {
-              onNavigateToExplore(
-                list.id,
-                list.name,
-              ); // muda a tab no MainScreen
-              Navigator.pop(context); // fecha o ListDetailScreen
+              widget.onNavigateToExplore(
+                widget.list.id,
+                widget.list.name,
+                itemCount, // passa o itemCount real do stream
+              );
+              Navigator.pop(context);
             },
             child: const Text('Adicionar produtos'),
           ),
