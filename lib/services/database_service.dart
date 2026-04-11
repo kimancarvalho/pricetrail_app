@@ -34,6 +34,25 @@ class DatabaseService {
         );
   }
 
+  /// Cria o documento do utilizador no Firestore após o registo
+  static Future<void> createUserDocument({
+    required String userId,
+    required String email,
+    required String name,
+    required String location,
+    required String transport,
+  }) async {
+    await _db.collection('users').doc(userId).set({
+      'email': email,
+      'name': name,
+      'location': location,
+      'transport': transport,
+      'lifetimeSavings': 0,
+      'monthlySavings': 0,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   /// Devolve as listas uma única vez — usado no bottom sheet do Explore
   static Future<List<ShoppingList>> getShoppingListsOnce(String userId) async {
     final snapshot = await _listsRef(

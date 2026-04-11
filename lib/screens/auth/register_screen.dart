@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../core/app_constants.dart';
 import '../../services/auth_service.dart';
+import '../../services/database_service.dart';
 
 /// Ecrã de registo de novo utilizador.
 /// Segue o mesmo estilo visual do LoginScreen.
@@ -72,14 +73,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Atualiza o nome de exibição do utilizador no Firebase Auth
       await credential.user?.updateDisplayName(_nameController.text.trim());
 
-      // TODO — guardar localidade e transporte no Firestore (Fase seguinte)
+      //guardar localidade e transporte no Firestore (Fase seguinte)
+      final user = credential.user;
+
+      if (user != null) {
+        await DatabaseService.createUserDocument(
+          userId: user.uid,
+          email: user.email ?? '',
+          name: _nameController.text.trim(),
+          location: _localityController.text.trim(),
+          transport: _selectedTransport,
+        );
+      }
 
       // Registo bem sucedido — o StreamBuilder do main.dart deteta
       // automaticamente o novo utilizador autenticado e navega para o MainScreen.
       // Limpamos toda a pilha de navegação para o utilizador não poder
       // voltar ao ecrã de registo com o botão de voltar.
       if (mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } on FirebaseAuthException catch (e) {
       setState(() => _errorMessage = AuthService.getErrorMessage(e.code));

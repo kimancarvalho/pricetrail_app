@@ -21,7 +21,6 @@ class PriceTrailApp extends StatelessWidget {
       title: 'PriceTrail',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      initialRoute: '/',
       // StreamBuilder ouve o estado de autenticação do Firebase
       // e decide qual ecrã mostrar automaticamente
       home: StreamBuilder<User?>(
