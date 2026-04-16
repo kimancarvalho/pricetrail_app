@@ -157,7 +157,7 @@ A aplicação depende de fontes externas para dados de preços e mapas. A precis
 ## Equipa de Desenvolvimento
 
 * [202200359@estudantes.ips.pt](mailto:202200359@estudantes.ips.pt) - Felisberto de Carvalho
-* [2024146419@estudantes.ips.pt](mailto:2024146419@estudantes.ips.pt) - Alex
+* [2024146419@estudantes.ips.pt](mailto:2024146419@estudantes.ips.pt) - Alexandre Dias
 * [2024149191@estudantes.ips.pt](mailto:2024149191@estudantes.ips.pt) - Joana Lagarto
 * [2024149382@estudantes.ips.pt](mailto:2024149382@estudantes.ips.pt) - Diogo Pina
 
