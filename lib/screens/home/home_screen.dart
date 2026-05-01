@@ -13,8 +13,9 @@ class HomeScreen extends StatefulWidget {
   /// para navegar para o Explore com a lista ativa.
   final Function(String listId, String listName, int itemCount)
   onNavigateToExplore;
+  final Function(String listId, String listName) onNavigateToRoute;
 
-  const HomeScreen({super.key, required this.onNavigateToExplore});
+  const HomeScreen({super.key, required this.onNavigateToExplore,required this.onNavigateToRoute,});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -411,6 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 userId: _userId,
                 list: list,
                 onNavigateToExplore: widget.onNavigateToExplore,
+                onNavigateToRoute: widget.onNavigateToRoute,
               ),
             ),
           );

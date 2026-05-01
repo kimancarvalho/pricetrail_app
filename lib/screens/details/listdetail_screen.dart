@@ -7,14 +7,15 @@ import '../../core/app_constants.dart';
 class ListDetailScreen extends StatefulWidget {
   final String userId;
   final ShoppingList list;
-  final void Function(String listId, String listName, int itemCount)
-  onNavigateToExplore;
+  final void Function(String listId, String listName, int itemCount) onNavigateToExplore;
+  final void Function(String listId, String listName) onNavigateToRoute;
 
   const ListDetailScreen({
     super.key,
     required this.userId,
     required this.list,
     required this.onNavigateToExplore,
+    required this.onNavigateToRoute,
   });
 
   @override
@@ -176,6 +177,9 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
         child: ElevatedButton.icon(
           onPressed: () {
             // TODO — navegar para Route Screen
+            print("DEBUG 1: Botão clicado no Detalhe da Lista!");
+            widget.onNavigateToRoute(widget.list.id, widget.list.name);
+            Navigator.pop(context);
           },
           icon: const Icon(Icons.route),
           label: Text('Optimize Route ($itemCount Items)'),

@@ -24,11 +24,20 @@ class _MainScreenState extends State<MainScreen> {
   //chamado pelo HomeScreen quando o utilizador clica numa lista. Faz duas coisas: define a lista ativa
   //E muda o tab para o Explore
   void _navigateToExplore(String listId, String listName, int itemCount) {
+    print("DEBUG 2: MainScreen recebeu o comando para mudar para a Rota!");
     setState(() {
       _activeListId = listId;
       _activeListName = listName;
       _activeListItemCount = itemCount;
       _currentIndex = AppConstants.tabExplore;
+    });
+  }
+
+   void _navigateToRoute(String listId, String listName) {
+    setState(() {
+      _activeListId = listId;
+      _activeListName = listName;
+      _currentIndex = AppConstants.tabRoute; // Isso vai mudar para a aba da Rota
     });
   }
 
@@ -38,7 +47,10 @@ class _MainScreenState extends State<MainScreen> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          HomeScreen(onNavigateToExplore: _navigateToExplore),
+          HomeScreen(
+            onNavigateToExplore: _navigateToExplore,
+            onNavigateToRoute: _navigateToRoute,
+          ),
           ExploreScreen(
             // key força recriação quando a lista ativa muda
             key: ValueKey('$_activeListId-$_activeListName'),
@@ -46,7 +58,10 @@ class _MainScreenState extends State<MainScreen> {
             activeListName: _activeListName,
             initialItemCount: _activeListItemCount,
           ),
-          const RouteScreen(),
+           RouteScreen(
+            listId: _activeListId,
+            listName: _activeListName,
+           ),
           const ProfileScreen(),
         ],
       ),
