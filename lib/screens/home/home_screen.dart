@@ -5,6 +5,7 @@ import '../../models/monthly_summary.dart';
 import '../../models/shopping_list.dart';
 import '../../services/database_service.dart';
 import '../../screens/details/listdetail_screen.dart';
+import '../../services/notification_service.dart';
 
 /// Home Dashboard — ecrã principal da app.
 /// Mostra o resumo mensal e as listas de compras do utilizador.
@@ -83,6 +84,10 @@ class _HomeScreenState extends State<HomeScreen> {
               await DatabaseService.createShoppingList(
                 userId: _userId,
                 name: controller.text.trim(),
+              );
+              await NotificationService.showNotification(
+                title: 'Lista Criada! 📝',
+                body: 'A tua lista "${controller.text.trim()}" está pronta a usar.',
               );
               if (context.mounted) Navigator.pop(context);
             },
