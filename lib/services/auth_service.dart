@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
 
 /// Serviço responsável por toda a lógica de autenticação.
 /// Centralizar aqui isola a dependência do Firebase Auth
@@ -26,6 +28,39 @@ class AuthService {
       password: password,
     );
   }
+
+  /// Faz login com a conta Google.
+  /// Retorna UserCredential em caso de sucesso, null se o utilizador cancelar.
+  static Future<UserCredential?> signInWithGoogle() async {
+  try {
+    if (kIsWeb) {
+      // WEB → usar popup do Firebase diretamente
+      final provider = GoogleAuthProvider();
+      
+      // força escolha de conta
+      provider.setCustomParameters({
+        'prompt': 'select_account',
+      });
+
+      return await _auth.signInWithPopup(provider);
+    } else {
+      // MOBILE → usar google_sign_in
+      final googleSignIn = GoogleSignIn.instance;
+
+      final googleUser = await googleSignIn.authenticate();
+      final googleAuth = googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      return await _auth.signInWithCredential(credential);
+    }
+  } catch (e) {
+    debugPrint("Erro no Google Sign-In: $e");
+    rethrow;
+  }
+}
 
   /// Regista um novo utilizador com email e password.
   /// Lança [FirebaseAuthException] em caso de erro.
@@ -66,6 +101,10 @@ class AuthService {
         return 'Please enter a valid email address.';
       case 'too-many-requests':
         return 'Too many attempts. Please try again later.';
+      case 'network-request-failed':
+        return 'Network error. Please check your internet connection.';
+      case 'account-exists-with-different-credential':
+        return 'An account already exists with the same email but different sign-in method.';
       default:
         return 'Something went wrong. Please try again.';
     }

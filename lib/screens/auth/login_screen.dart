@@ -72,6 +72,36 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+/// Tenta fazer login com o Google
+  Future<void> _loginWithGoogle() async {
+    // limpa erro anterior e ativa o loading
+    setState(() {
+      _errorMessage = null;
+      _isLoading = true;
+    });
+
+    try {
+      // chama o metodo do AuthService
+      final result = await AuthService.signInWithGoogle();
+      
+      // null, significa que o user fechou a janela do google sem escolher conta
+      if (result == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+     } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = AuthService.getErrorMessage(e.code);
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = AuthService.getErrorMessage('unknown');
+      });
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
               _buildOAuthButton(
                 label: 'Continue with Google',
                 icon: Icons.g_mobiledata,
-                onTap: () {}, // TODO — implementar OAuth Google
+                onTap: _isLoading ? () {} : _loginWithGoogle,
               ),
               const SizedBox(height: AppConstants.spacingXL),
               _buildCreateAccount(),
