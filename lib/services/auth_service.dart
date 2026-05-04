@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 /// Serviço responsável por toda a lógica de autenticação.
 /// Centralizar aqui isola a dependência do Firebase Auth
@@ -58,6 +59,36 @@ class AuthService {
     }
   } catch (e) {
     debugPrint("Erro no Google Sign-In: $e");
+    rethrow;
+  }
+}
+static Future<UserCredential?> signInWithApple() async {
+  try {
+    if (kIsWeb) {
+      // Apple no Web (Firebase popup)
+      final provider = OAuthProvider("apple.com");
+      provider.addScope('email');
+      provider.addScope('name');
+
+      return await _auth.signInWithPopup(provider);
+    } else {
+      // Apple no iOS
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final oauthCredential = OAuthProvider("apple.com").credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+
+      return await _auth.signInWithCredential(oauthCredential);
+    }
+  } catch (e) {
+    debugPrint("Erro Apple Sign-In: $e");
     rethrow;
   }
 }

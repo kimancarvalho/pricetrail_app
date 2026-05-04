@@ -79,7 +79,6 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
       _isLoading = true;
     });
-
     try {
       // chama o metodo do AuthService
       final result = await AuthService.signInWithGoogle();
@@ -101,6 +100,33 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
+  /// faz login com a apple TODO: Apple Sign-In requires Firebase + Apple Developer setup
+  Future<void> _loginWithApple() async {
+  setState(() {
+    _errorMessage = null;
+    _isLoading = true;
+  });
+
+  try {
+    final result = await AuthService.signInWithApple();
+
+    if (result == null) {
+      setState(() => _isLoading = false);
+      return;
+    }
+
+  } on FirebaseAuthException catch (e) {
+    setState(() {
+      _errorMessage = AuthService.getErrorMessage(e.code);
+    });
+  } catch (e) {
+    setState(() {
+      _errorMessage = AuthService.getErrorMessage('unknown');
+    });
+  } finally {
+    if (mounted) setState(() => _isLoading = false);
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
               _buildOAuthButton(
                 label: 'Continue with Apple',
                 icon: Icons.apple,
-                onTap: () {}, // TODO — implementar OAuth Apple
+                onTap: _isLoading ? () {} : _loginWithApple,
               ),
               const SizedBox(height: AppConstants.spacingM),
               _buildOAuthButton(
