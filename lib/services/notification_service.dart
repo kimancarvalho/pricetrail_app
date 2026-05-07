@@ -8,15 +8,15 @@ class NotificationService {
     // 1. Pedir permissão explicitamente (Obrigatório no Android 13+)
     await _notificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.requestNotificationsPermission();
     // Configuração para Android
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-    );
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
 
     // Inicializa o plugin
     await _notificationsPlugin.initialize(settings: initializationSettings);
@@ -27,12 +27,13 @@ class NotificationService {
     required String body,
   }) async {
     // Configura os detalhes da notificação (som, importância, etc)
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'pricetrail_channel', // ID do canal
-      'PriceTrail Notifications', // Nome do canal
-      importance: Importance.max,
-      priority: Priority.high,
-    );
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'pricetrail_channel', // ID do canal
+          'PriceTrail Notifications', // Nome do canal
+          importance: Importance.max,
+          priority: Priority.high,
+        );
 
     const NotificationDetails notificationDetails = NotificationDetails(
       android: androidDetails,

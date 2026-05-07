@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart'; 
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../core/app_constants.dart';
 
 class RouteScreen extends StatefulWidget {
@@ -32,9 +32,7 @@ class _RouteScreenState extends State<RouteScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Rota: ${widget.listName}'),
-      ),
+      appBar: AppBar(title: Text('Rota: ${widget.listName}')),
       body: GoogleMap(
         initialCameraPosition: const CameraPosition(
           target: _ipsLocation,
