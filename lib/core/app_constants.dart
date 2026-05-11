@@ -99,4 +99,9 @@ class AppConstants {
     {'value': 'promotion', 'label': 'Promotion'},
     {'value': 'store_brand', 'label': 'Store brand'},
   ];
+
+  // --- Google API ---
+  static const String googleMapsApiKey = String.fromEnvironment(
+    'GOOGLE_MAPS_API_KEY',
+  );
 }

@@ -61,6 +61,18 @@ class DatabaseService {
     return snapshot.docs.map((doc) => ShoppingList.fromFirestore(doc)).toList();
   }
 
+  /// Devolve os items de uma lista uma única vez — usado no RouteOptimizer
+  static Future<List<ListItem>> getListItemsOnce({
+    required String userId,
+    required String listId,
+  }) async {
+    final snapshot = await _itemsRef(
+      userId,
+      listId,
+    ).orderBy('addedAt', descending: false).get();
+    return snapshot.docs.map((doc) => ListItem.fromFirestore(doc)).toList();
+  }
+
   /// Cria uma nova lista e devolve o ID gerado
   static Future<String> createShoppingList({
     required String userId,

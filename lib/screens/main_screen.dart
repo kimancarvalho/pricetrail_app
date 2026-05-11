@@ -19,6 +19,8 @@ class _MainScreenState extends State<MainScreen> {
 
   String? _activeListId;
   String? _activeListName;
+  String? _activeRouteListId;
+  String? _activeRouteListName;
   int _activeListItemCount = 0;
 
   //chamado pelo HomeScreen quando o utilizador clica numa lista. Faz duas coisas: define a lista ativa
@@ -33,11 +35,11 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-   void _navigateToRoute(String listId, String listName) {
+  void _navigateToRoute(String listId, String listName) {
     setState(() {
-      _activeListId = listId;
-      _activeListName = listName;
-      _currentIndex = AppConstants.tabRoute; // Isso vai mudar para a aba da Rota
+      _activeRouteListId = listId;
+      _activeRouteListName = listName;
+      _currentIndex = AppConstants.tabRoute;
     });
   }
 
@@ -58,10 +60,11 @@ class _MainScreenState extends State<MainScreen> {
             activeListName: _activeListName,
             initialItemCount: _activeListItemCount,
           ),
-           RouteScreen(
-            listId: _activeListId,
-            listName: _activeListName,
-           ),
+          RouteScreen(
+            key: ValueKey('$_activeRouteListId'),
+            listId: _activeRouteListId,
+            listName: _activeRouteListName,
+          ),
           const ProfileScreen(),
         ],
       ),
