@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../core/app_constants.dart';
+import '../settings/app_constants.dart';
 import 'home/home_screen.dart';
 import 'explore/explore_screen.dart';
 import 'route/route_screen.dart';
 import 'profile/profile_screen.dart';
 
-/// Ecrã principal da app — contém o BottomNavigationBar
+/// Ecrã principal da app contém o BottomNavigationBar
 /// e gere a navegação entre os 4 tabs.
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

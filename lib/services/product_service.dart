@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/product.dart';
 import '../models/store_price.dart';
-import '../core/app_constants.dart';
+import '../settings/app_constants.dart';
 
 /// Serviço responsável por pesquisar produtos via Open Food Facts API
 /// e simular preços por loja via dados locais.
@@ -98,7 +98,7 @@ class ProductService {
     return results.map((p) => Product.fromOpenFoodFacts(p)).toList();
   }
 
-  /// Pesquisa produtos — tenta a API primeiro, usa mock se falhar
+  /// Pesquisa produtos, tenta a API primeiro, usa mock se falhar
   static Future<List<Product>> searchProducts(String query) async {
     if (query.trim().isEmpty) return [];
 
@@ -125,10 +125,10 @@ class ProductService {
         if (result.isNotEmpty) return result;
       }
 
-      // API falhou ou sem resultados — usa mock filtrado pela query
+      // API falhou ou sem resultados, usa mock filtrado pela query
       return _searchMock(query);
     } catch (e) {
-      // Qualquer erro de rede — usa mock
+      // Qualquer erro de rede, usa mock
       return _searchMock(query);
     }
   }

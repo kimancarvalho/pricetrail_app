@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../core/app_constants.dart';
+import '../settings/app_constants.dart';
 import '../models/product.dart';
 import '../models/store_price.dart';
 import '../services/product_service.dart';
@@ -30,12 +30,12 @@ class ProductCard extends StatelessWidget {
   void _showPriceComparison(BuildContext context) {
     final prices = ProductService.getSimulatedPrices(product.id);
 
-    // Ordena por preço crescente — mais barato primeiro
+    // Ordena por preço crescente mais barato primeiro
     prices.sort((a, b) => a.price.compareTo(b.price));
 
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // ← permite que o bottom sheet cresça
+      isScrollControlled: true, // permite que o bottom sheet cresça
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(AppConstants.radiusM),

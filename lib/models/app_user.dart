@@ -1,3 +1,4 @@
+/// Representa um usuário da aplicação
 class AppUser {
   final String email;
   final String name;

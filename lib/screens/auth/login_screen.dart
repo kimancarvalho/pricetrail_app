@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../core/app_constants.dart';
+import '../../settings/app_constants.dart';
 import '../../services/auth_service.dart';
 import 'register_screen.dart';
 
-/// Ecrã de autenticação — login com email/password.
+/// Ecrã de autenticação login com email/password.
 /// Fiel ao mockup: erro no topo, campos, botão com estado,
 /// OAuth e link para registo.
 class LoginScreen extends StatefulWidget {
@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  /// Tenta fazer login — atualiza o estado consoante o resultado
+  /// Tenta fazer login atualiza o estado consoante o resultado
   Future<void> _login() async {
     // Limpa erro anterior e ativa o loading
     setState(() {
@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text,
         password: _passwordController.text,
       );
-      // Login bem sucedido — navegação tratada pelo auth state listener
+      // Login bem sucedido navegação tratada pelo auth state listener
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = AuthService.getErrorMessage(e.code);
@@ -56,23 +56,23 @@ class _LoginScreenState extends State<LoginScreen> {
   /// Envia email de recuperação de password
   Future<void> _forgotPassword() async {
     if (_emailController.text.isEmpty) {
-      setState(() => _errorMessage = 'Enter your email first.');
+      setState(() => _errorMessage = 'Insira o seu email.');
       return;
     }
 
     try {
       await AuthService.sendPasswordResetEmail(_emailController.text);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Recovery email sent!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Email de recuperação enviado')),
+        );
       }
     } on FirebaseAuthException catch (e) {
       setState(() => _errorMessage = AuthService.getErrorMessage(e.code));
     }
   }
 
-/// Tenta fazer login com o Google
+  /// Tenta fazer login com o Google
   Future<void> _loginWithGoogle() async {
     // limpa erro anterior e ativa o loading
     setState(() {
@@ -82,51 +82,24 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       // chama o metodo do AuthService
       final result = await AuthService.signInWithGoogle();
-      
+
       // null, significa que o user fechou a janela do google sem escolher conta
       if (result == null) {
         setState(() => _isLoading = false);
         return;
       }
-     } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = AuthService.getErrorMessage(e.code);
       });
     } catch (e) {
       setState(() {
-        _errorMessage = AuthService.getErrorMessage('unknown');
+        _errorMessage = AuthService.getErrorMessage('Desconhecido');
       });
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-  /// faz login com a apple TODO: Apple Sign-In requires Firebase + Apple Developer setup
-  Future<void> _loginWithApple() async {
-  setState(() {
-    _errorMessage = null;
-    _isLoading = true;
-  });
-
-  try {
-    final result = await AuthService.signInWithApple();
-
-    if (result == null) {
-      setState(() => _isLoading = false);
-      return;
-    }
-
-  } on FirebaseAuthException catch (e) {
-    setState(() {
-      _errorMessage = AuthService.getErrorMessage(e.code);
-    });
-  } catch (e) {
-    setState(() {
-      _errorMessage = AuthService.getErrorMessage('unknown');
-    });
-  } finally {
-    if (mounted) setState(() => _isLoading = false);
-  }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: AppConstants.spacingXXL),
               _buildLogo(),
               const SizedBox(height: AppConstants.spacingXXL),
-              // Erro — só visível quando existe
+              // Erro: só visível quando existe
               if (_errorMessage != null) ...[
                 _buildErrorBanner(),
                 const SizedBox(height: AppConstants.spacingL),
@@ -155,14 +128,9 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: AppConstants.spacingXL),
               _buildDivider(),
               const SizedBox(height: AppConstants.spacingL),
-              _buildOAuthButton(
-                label: 'Continue with Apple',
-                icon: Icons.apple,
-                onTap: _isLoading ? () {} : _loginWithApple,
-              ),
               const SizedBox(height: AppConstants.spacingM),
               _buildOAuthButton(
-                label: 'Continue with Google',
+                label: 'Continuar com Google',
                 icon: Icons.g_mobiledata,
                 onTap: _isLoading ? () {} : _loginWithGoogle,
               ),
@@ -193,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           const SizedBox(height: AppConstants.spacingXS),
           const Text(
-            'Optimize your grocery routes',
+            'Otimize os seus percursos de compras',
             style: TextStyle(
               fontSize: AppConstants.fontSizeBody,
               color: AppConstants.textSecondary,
@@ -284,14 +252,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  /// Link "Forgot Password?" alinhado à direita
+  /// Link "Esqueceu a Senha?" alinhado à direita
   Widget _buildForgotPassword() {
     return Align(
       alignment: Alignment.centerRight,
       child: GestureDetector(
         onTap: _forgotPassword,
         child: const Text(
-          'Forgot Password?',
+          'Esqueceu a Senha?',
           style: TextStyle(
             color: AppConstants.primaryColor,
             fontSize: AppConstants.fontSizeBody,
@@ -306,7 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildLoginButton() {
     return ElevatedButton(
       onPressed: _isLoading ? null : _login,
-      child: Text(_isLoading ? 'Logging in...' : 'Log In'),
+      child: Text(_isLoading ? '...' : 'Iniciar Sessão'),
     );
   }
 
@@ -367,14 +335,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  /// Link "New to PriceTrail? Create Account"
+  /// Link "Novo no PriceTrail? Criar Conta"
   Widget _buildCreateAccount() {
     return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text(
-            'New to PriceTrail? ',
+            'Novo no PriceTrail?',
             style: TextStyle(
               color: AppConstants.textSecondary,
               fontSize: AppConstants.fontSizeBody,
@@ -386,7 +354,7 @@ class _LoginScreenState extends State<LoginScreen> {
               MaterialPageRoute(builder: (_) => const RegisterScreen()),
             ), //navegar para ecrã de registo
             child: const Text(
-              'Create Account',
+              'Criar Conta',
               style: TextStyle(
                 color: AppConstants.primaryColor,
                 fontSize: AppConstants.fontSizeBody,

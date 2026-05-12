@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../core/app_constants.dart';
+import '../../settings/app_constants.dart';
 import '../../services/auth_service.dart';
 import '../../services/database_service.dart';
 
@@ -27,7 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _confirmPasswordVisible = false;
   String? _errorMessage;
 
-  // Meio de transporte selecionado — valor por omissão: a pé
+  // Meio de transporte selecionado - valor por omissão: a pé
   String _selectedTransport = AppConstants.transportWalk;
 
   @override
@@ -46,19 +46,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     // Validações locais antes de ir ao Firebase
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Please enter your name.');
+      setState(() => _errorMessage = 'Por favor insira o seu nome.');
       return;
     }
     if (_emailController.text.trim().isEmpty) {
-      setState(() => _errorMessage = 'Please enter your email.');
+      setState(() => _errorMessage = 'Por favor insira o seu email.');
       return;
     }
     if (_passwordController.text.length < 6) {
-      setState(() => _errorMessage = 'Password must be at least 6 characters.');
+      setState(
+        () => _errorMessage = 'Senha precisa de pelo menos 6 carateres.',
+      );
       return;
     }
     if (_passwordController.text != _confirmPasswordController.text) {
-      setState(() => _errorMessage = 'Passwords do not match.');
+      setState(() => _errorMessage = 'Senhas Não Correspondem.');
       return;
     }
 
@@ -73,7 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Atualiza o nome de exibição do utilizador no Firebase Auth
       await credential.user?.updateDisplayName(_nameController.text.trim());
 
-      //guardar localidade e transporte no Firestore (Fase seguinte)
+      //guardar localidade e transporte no Firestore
       final user = credential.user;
 
       if (user != null) {
@@ -86,7 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
 
-      // Registo bem sucedido — o StreamBuilder do main.dart deteta
+      // Registo bem sucedido - o StreamBuilder do main.dart deteta
       // automaticamente o novo utilizador autenticado e navega para o MainScreen.
       // Limpamos toda a pilha de navegação para o utilizador não poder
       // voltar ao ecrã de registo com o botão de voltar.
@@ -111,14 +113,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               _buildHeader(context),
               const SizedBox(height: AppConstants.spacingXL),
-              // Erro — só visível quando existe
+              // Erro - só visível quando existe
               if (_errorMessage != null) ...[
                 _buildErrorBanner(),
                 const SizedBox(height: AppConstants.spacingL),
               ],
               _buildTextField(
                 controller: _nameController,
-                label: 'Full Name',
+                label: 'Nome e Sobrenome',
                 hint: 'John Smith',
                 inputType: TextInputType.name,
                 action: TextInputAction.next,
@@ -126,7 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: AppConstants.spacingM),
               _buildTextField(
                 controller: _emailController,
-                label: 'Email Address',
+                label: 'Endereço de Email',
                 hint: 'john@example.com',
                 inputType: TextInputType.emailAddress,
                 action: TextInputAction.next,
@@ -134,15 +136,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: AppConstants.spacingM),
               _buildTextField(
                 controller: _localityController,
-                label: 'Locality',
-                hint: 'e.g. Lisbon',
+                label: 'Localidade',
+                hint: 'e.g. Lisboa',
                 inputType: TextInputType.streetAddress,
                 action: TextInputAction.next,
               ),
               const SizedBox(height: AppConstants.spacingM),
               _buildPasswordField(
                 controller: _passwordController,
-                label: 'Password',
+                label: 'Senha',
                 visible: _passwordVisible,
                 onToggle: () =>
                     setState(() => _passwordVisible = !_passwordVisible),
@@ -151,7 +153,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: AppConstants.spacingM),
               _buildPasswordField(
                 controller: _confirmPasswordController,
-                label: 'Confirm Password',
+                label: 'Confirmar Senha',
                 visible: _confirmPasswordVisible,
                 onToggle: () => setState(
                   () => _confirmPasswordVisible = !_confirmPasswordVisible,
@@ -203,7 +205,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  /// Banner de erro — mesmo estilo do LoginScreen
+  /// Banner de erro mesmo estilo do LoginScreen
   Widget _buildErrorBanner() {
     return Container(
       width: double.infinity,
@@ -294,7 +296,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  /// Seletor de meio de transporte — chips selecionáveis
+  /// Seletor de meio de transporte - chips selecionáveis
   Widget _buildTransportSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,11 +312,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         const SizedBox(height: AppConstants.spacingS),
         Row(
           children: AppConstants.transportOptions.map((option) {
-            final isSelected = _selectedTransport == option['value'];
+            final isSelected = _selectedTransport == option.value;
             return Expanded(
               child: GestureDetector(
-                onTap: () =>
-                    setState(() => _selectedTransport = option['value']!),
+                onTap: () => setState(() => _selectedTransport = option.value),
                 child: AnimatedContainer(
                   duration: const Duration(
                     milliseconds: AppConstants.animationFastMs,
@@ -336,13 +337,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   child: Column(
                     children: [
-                      Text(
-                        option['icon']!,
-                        style: const TextStyle(fontSize: 20),
+                      Icon(
+                        option.icon,
+                        size: 20,
+                        color: isSelected
+                            ? AppConstants.surfaceColor
+                            : AppConstants.textSecondary,
                       ),
                       const SizedBox(height: AppConstants.spacingXS),
                       Text(
-                        option['label']!,
+                        option.label,
+
                         style: TextStyle(
                           fontSize: AppConstants.fontSizeSmall,
                           fontWeight: FontWeight.w500,
@@ -366,7 +371,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _buildRegisterButton() {
     return ElevatedButton(
       onPressed: _isLoading ? null : _register,
-      child: Text(_isLoading ? 'Creating account...' : 'Create Account'),
+      child: Text(_isLoading ? '...' : 'Criar Conta'),
     );
   }
 
@@ -377,7 +382,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text(
-            'Already have an account? ',
+            'Já Possui uma Conta?',
             style: TextStyle(
               color: AppConstants.textSecondary,
               fontSize: AppConstants.fontSizeBody,

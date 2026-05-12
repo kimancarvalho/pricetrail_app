@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'core/app_theme.dart';
+import 'settings/app_theme.dart';
 import 'firebase_options.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/main_screen.dart';
@@ -35,12 +35,12 @@ class PriceTrailApp extends StatelessWidget {
             );
           }
 
-          // Utilizador autenticado → vai para a app
+          // Utilizador autenticado vai para a app
           if (snapshot.hasData) {
             return const MainScreen();
           }
 
-          // Utilizador não autenticado → vai para o login
+          // Utilizador não autenticado vai para o login
           return const LoginScreen();
         },
       ),

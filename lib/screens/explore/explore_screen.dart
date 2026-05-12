@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../core/app_constants.dart';
+import '../../settings/app_constants.dart';
 import '../../models/product.dart';
 import '../../services/product_service.dart';
 import '../../widgets/product_card.dart';
@@ -653,7 +653,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             Icon(Icons.search, size: 64, color: Colors.grey.shade300),
             const SizedBox(height: AppConstants.spacingM),
             const Text(
-              'Search for products to compare prices',
+              'Pesquisar por produtos para comparar preços.',
               style: TextStyle(color: AppConstants.textSecondary),
               textAlign: TextAlign.center,
             ),
@@ -677,7 +677,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
             const SizedBox(height: AppConstants.spacingM),
             const Text(
-              'No products found',
+              'Nenhum Produto Encontrado.',
               style: TextStyle(color: AppConstants.textSecondary),
             ),
           ],
@@ -735,7 +735,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         onPressed: () {
           // TODO — navegar para Route Screen com os produtos selecionados
         },
-        child: Text('Optimize Route ($_totalItemCount Items)'),
+        child: Text('Otimizar Rota ($_totalItemCount Items)'),
       ),
     );
   }

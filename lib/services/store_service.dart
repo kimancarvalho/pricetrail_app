@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -93,7 +92,7 @@ class StoreService {
         );
       }
 
-      // Remove duplicados da mesma cadeia — fica só a mais próxima
+      // Remove duplicados da mesma cadeia
       final seen = <String>{};
       final unique = stores.where((s) => seen.add(s.id)).toList();
 

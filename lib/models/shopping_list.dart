@@ -36,7 +36,7 @@ class ShoppingList {
     );
   }
 
-  /// Converte um objeto ShoppingList para Map — para guardar no Firestore
+  /// Converte um objeto ShoppingList para Map para guardar no Firestore
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,

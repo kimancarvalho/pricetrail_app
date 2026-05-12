@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../core/app_constants.dart';
+import '../../settings/app_constants.dart';
 import '../../models/monthly_summary.dart';
 import '../../models/shopping_list.dart';
 import '../../services/database_service.dart';

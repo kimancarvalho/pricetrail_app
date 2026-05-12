@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/shopping_list.dart';
 import '../../models/list_item.dart';
 import '../../services/database_service.dart';
-import '../../core/app_constants.dart';
+import '../../settings/app_constants.dart';
 
 class ListDetailScreen extends StatefulWidget {
   final String userId;
@@ -57,10 +57,10 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                       ),
               ),
 
-              // BOTÃO OPTIMIZE — só visível quando há items
+              // BOTÃO OPTIMIZAR só visível quando há items
               if (items.isNotEmpty) _buildOptimizeButton(context, items.length),
 
-              // BOTÃO ADICIONAR — sempre visível
+              // BOTÃO ADICIONAR sempre visível
               _buildAddButton(context, items.length),
             ],
           );
@@ -69,7 +69,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
     );
   }
 
-  // HEADER — usa items.length em vez de list.itemCount
+  // HEADER usa items.length em vez de list.itemCount
   // porque o stream é sempre mais recente que o snapshot da lista
   Widget _buildHeader(int itemCount) {
     return Container(
@@ -87,7 +87,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Estimado: \$${widget.list.estimatedTotal.toStringAsFixed(2)}',
+            'Estimado: €${widget.list.estimatedTotal.toStringAsFixed(2)}',
             style: const TextStyle(
               fontSize: AppConstants.fontSizeBody,
               fontWeight: FontWeight.bold,
@@ -134,7 +134,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                 )
               : const Icon(Icons.shopping_bag_outlined),
           title: Text(item.productName),
-          subtitle: Text('\$${item.averagePrice.toStringAsFixed(2)}'),
+          subtitle: Text('€${item.averagePrice.toStringAsFixed(2)}'),
           trailing: IconButton(
             icon: const Icon(Icons.remove_circle_outline),
             onPressed: () {
@@ -181,7 +181,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
             Navigator.pop(context);
           },
           icon: const Icon(Icons.route),
-          label: Text('Optimize Route ($itemCount Items)'),
+          label: Text('Otimizar Rota ($itemCount Items)'),
         ),
       ),
     );

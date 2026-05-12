@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../../core/app_constants.dart';
+import '../../settings/app_constants.dart';
 import '../../services/database_service.dart';
 import '../../services/location_service.dart';
 import '../../services/route_optimizer.dart';
