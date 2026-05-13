@@ -10,7 +10,7 @@ import '../../services/database_service.dart';
 /// Ecrã de pesquisa e descoberta de produtos.
 /// Usa Open Food Facts API com debounce para pesquisa eficiente.
 class ExploreScreen extends StatefulWidget {
-  /// Lista ativa — preenchida quando o utilizador vem do Home.
+  /// Lista ativa preenchida quando o utilizador vem do Home.
   /// null quando acede diretamente pelo tab.
   final String? activeListId;
   final String? activeListName;
@@ -32,7 +32,7 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
-  // Lista ativa — pode ser definida ao chegar do Home
+  // Lista ativa pode ser definida ao chegar do Home
   // ou após o utilizador selecionar/criar uma lista no Explore
   String? _activeListId;
   String? _activeListName;
@@ -40,7 +40,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   // Total de items = os que já existiam + os adicionados nesta sessão
   int get _totalItemCount => widget.initialItemCount + _addedProducts.length;
 
-  // Mapeia productId → itemId do Firestore para poder remover
+  // Mapeia productId itemId do Firestore para poder remover
   final Map<String, String> _itemIds = {};
 
   // ID do utilizador atual
@@ -54,7 +54,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   String? _errorMessage;
   bool _hasSearched = false;
 
-  // Produtos adicionados à lista atual — Set para O(1) lookup
+  // Produtos adicionados à lista atual Set para O(1) lookup
   final Set<String> _addedProducts = {};
 
   // Filtro ativo
@@ -75,7 +75,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     super.dispose();
   }
 
-  /// Chamado a cada letra escrita — aplica debounce
+  /// Chamado a cada letra escrita aplica debounce
   void _onSearchChanged(String query) {
     _debounceTimer?.cancel();
 
@@ -110,7 +110,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error searching products. Try again.';
+        _errorMessage = 'Erro a pesquisar produtos. Tente novamente.';
         _isLoading = false;
       });
     }
@@ -140,7 +140,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     String productName,
     String productImageUrl,
   ) async {
-    // Se já está adicionado — remove
+    // Se já está adicionado remove
     if (_addedProducts.contains(productId)) {
       final itemId = _itemIds[productId];
       if (itemId != null && _activeListId != null) {
@@ -158,7 +158,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Removed from list'),
+            content: Text('Removido da lista.'),
             duration: Duration(seconds: 1),
             backgroundColor: AppConstants.textSecondary,
           ),
@@ -167,7 +167,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       return;
     }
 
-    // Não há lista ativa — mostra opções ao utilizador
+    // Não há lista ativa mostra opções ao utilizador
     if (_activeListId == null) {
       await _showListSelectionSheet(
         productId,
@@ -178,7 +178,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       return;
     }
 
-    // Há lista ativa — adiciona diretamente
+    // Há lista ativa adiciona diretamente
     await _addProductToList(productId, avgPrice, productName, productImageUrl);
   }
 
@@ -206,7 +206,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Added to "$_activeListName" ✓'),
+          content: Text('Adicionado em "$_activeListName"'),
           duration: const Duration(seconds: 1),
           backgroundColor: AppConstants.primaryColor,
         ),
@@ -262,7 +262,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
             const SizedBox(height: AppConstants.spacingS),
             const Text(
-              'Select an existing list or create a new one',
+              'Selecione uma lista ou crie uma.',
               style: TextStyle(
                 fontSize: AppConstants.fontSizeSmall,
                 color: AppConstants.textSecondary,
@@ -296,7 +296,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     ),
                   ),
                   subtitle: Text(
-                    '${list.itemCount} items',
+                    '${list.itemCount} itens',
                     style: const TextStyle(
                       fontSize: AppConstants.fontSizeSmall,
                       color: AppConstants.textSecondary,
@@ -340,7 +340,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 ),
               ),
               title: const Text(
-                'Create new list',
+                'Criar nova lista.',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: AppConstants.primaryColor,
@@ -379,7 +379,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           borderRadius: BorderRadius.circular(AppConstants.radiusM),
         ),
         title: const Text(
-          'New Shopping List',
+          'Nova Lista de Compras.',
           style: TextStyle(
             fontSize: AppConstants.fontSizeTitle,
             fontWeight: FontWeight.bold,
@@ -389,13 +389,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
           controller: controller,
           autofocus: true,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(hintText: 'e.g. Weekly Groceries'),
+          decoration: const InputDecoration(hintText: 'e.g. Compras Semanais'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text(
-              'Cancel',
+              'Cancelar',
               style: TextStyle(color: AppConstants.textSecondary),
             ),
           ),
@@ -433,7 +433,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 vertical: AppConstants.spacingS,
               ),
             ),
-            child: const Text('Create'),
+            child: const Text('Criar'),
           ),
         ],
       ),
@@ -460,7 +460,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ),
         ),
       ),
-      // Botão de otimizar rota — só visível quando há produtos adicionados
+      // Botão de otimizar rota só visível quando há produtos adicionados
       bottomNavigationBar: _activeListId != null && _totalItemCount > 0
           ? _buildOptimizeButton()
           : null,
@@ -489,7 +489,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Explore Products',
+              'Explorar Produtos',
               style: TextStyle(
                 fontSize: AppConstants.fontSizeTitle,
                 fontWeight: FontWeight.bold,
@@ -537,7 +537,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               )
             else
               const Text(
-                'Select a list to add products',
+                'Selecionar uma lista para adicionar produtos.',
                 style: TextStyle(
                   fontSize: AppConstants.fontSizeSmall,
                   color: AppConstants.textSecondary,
@@ -555,7 +555,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       controller: _searchController,
       onChanged: _onSearchChanged,
       decoration: InputDecoration(
-        hintText: 'Search products...',
+        hintText: 'Pesquisar Produtos...',
         prefixIcon: const Icon(Icons.search, color: AppConstants.textSecondary),
         suffixIcon: _searchController.text.isNotEmpty
             ? IconButton(
@@ -573,7 +573,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     );
   }
 
-  /// Chips de filtro — All, Promotion, Store brand
+  /// Chips de filtro: All, Promotion, Store brand
   Widget _buildFilterChips() {
     return Row(
       children: AppConstants.filterOptions.map((filter) {
@@ -618,7 +618,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     );
   }
 
-  /// Corpo do ecrã — muda consoante o estado
+  /// Corpo do ecrã muda consoante o estado
   Widget _buildBody() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -690,7 +690,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Top Results',
+          'Resultados Principais',
           style: const TextStyle(
             fontSize: AppConstants.fontSizeBody,
             fontWeight: FontWeight.bold,
@@ -735,7 +735,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         onPressed: () {
           // TODO — navegar para Route Screen com os produtos selecionados
         },
-        child: Text('Otimizar Rota ($_totalItemCount Items)'),
+        child: Text('Otimizar Rota ($_totalItemCount Itens)'),
       ),
     );
   }

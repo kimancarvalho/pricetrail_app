@@ -15,7 +15,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: const Text('Definições')),
       body: Stack(
         children: [
           Padding(
@@ -38,7 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                   onPressed: _isLoading ? null : () => _confirmDelete(context),
-                  child: const Text('Delete Account'),
+                  child: const Text('Apagar Conta'),
                 ),
               ],
             ),
@@ -60,21 +60,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Delete Account'),
+        title: const Text('Apagar Conta'),
         content: const Text(
-          'This will delete ALL your data permanently.\nAre you sure?',
+          'Isto irá apagar os seus dados permanentemente.\nTem a certeza?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
               await _deleteAccountFlow();
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: const Text('Apagar', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -88,20 +88,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return showDialog<String>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Confirm Password'),
+        title: const Text('Confirmar Senha'),
         content: TextField(
           controller: controller,
           obscureText: true,
-          decoration: const InputDecoration(hintText: 'Enter your password'),
+          decoration: const InputDecoration(hintText: 'Digite a sua senha'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Confirm'),
+            child: const Text('Confirmar'),
           ),
         ],
       ),
@@ -170,20 +170,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account deleted successfully')),
+          const SnackBar(content: Text('Conta Apagada Com Sucesso')),
         );
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(e.message ?? 'Error')));
+        ).showSnackBar(SnackBar(content: Text(e.message ?? 'Erro')));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Unexpected error')));
+        ).showSnackBar(const SnackBar(content: Text('Erro Inesperado')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

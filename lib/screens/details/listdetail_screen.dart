@@ -181,7 +181,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
             Navigator.pop(context);
           },
           icon: const Icon(Icons.route),
-          label: Text('Otimizar Rota ($itemCount Items)'),
+          label: Text('Otimizar Rota ($itemCount Itens)'),
         ),
       ),
     );

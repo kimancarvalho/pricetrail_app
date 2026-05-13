@@ -75,7 +75,7 @@ class ProductCard extends StatelessWidget {
               ),
               const SizedBox(height: AppConstants.spacingS),
               const Text(
-                'Price comparison by store',
+                'Comparação de Preços Por Loja',
                 style: TextStyle(
                   fontSize: AppConstants.fontSizeSmall,
                   color: AppConstants.textSecondary,
@@ -143,7 +143,7 @@ class ProductCard extends StatelessWidget {
                           ),
                         ),
                         child: const Text(
-                          'Cheapest',
+                          'Mais Barato',
                           style: TextStyle(
                             color: AppConstants.surfaceColor,
                             fontSize: 10,
@@ -158,9 +158,9 @@ class ProductCard extends StatelessWidget {
                 Row(
                   children: [
                     if (price.isPromotion)
-                      _buildBadge('Promotion', AppConstants.cautionColor),
+                      _buildBadge('Promoção', AppConstants.cautionColor),
                     if (price.isStoreBrand)
-                      _buildBadge('Store brand', AppConstants.primaryColor),
+                      _buildBadge('Marca Branda', AppConstants.primaryColor),
                   ],
                 ),
               ],
@@ -270,7 +270,7 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Found in ${prices.length} stores',
+                      'Encontrado em ${prices.length} lojas',
                       style: const TextStyle(
                         fontSize: AppConstants.fontSizeSmall,
                         color: AppConstants.textSecondary,

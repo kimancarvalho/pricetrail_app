@@ -85,7 +85,7 @@ class _RouteScreenState extends State<RouteScreen> {
     _mapController?.animateCamera(CameraUpdate.newLatLngZoom(userLocation, 14));
   }
 
-  /// Constrói os marcadores — utilizador + lojas da rota
+  /// Constrói os marcadores utilizador + lojas da rota
   Set<Marker> _buildMarkers() {
     final markers = <Marker>{};
     final stores = _optimizedRoute?.storesInOrder ?? [];
@@ -100,7 +100,7 @@ class _RouteScreenState extends State<RouteScreen> {
           infoWindow: InfoWindow(
             title: '${i + 1}. ${store.name}',
             snippet:
-                '${store.itemsToBuy.length} items • €${store.totalCost.toStringAsFixed(2)}',
+                '${store.itemsToBuy.length} itens • €${store.totalCost.toStringAsFixed(2)}',
           ),
           icon: BitmapDescriptor.defaultMarkerWithHue(
             i == _selectedStoreIndex
@@ -376,7 +376,7 @@ class _RouteScreenState extends State<RouteScreen> {
                             ),
                           ),
                           Text(
-                            '${store.itemsToBuy.length} items • ${store.distanceKm.toStringAsFixed(1)} km',
+                            '${store.itemsToBuy.length} itens • ${store.distanceKm.toStringAsFixed(1)} km',
                             style: const TextStyle(
                               fontSize: AppConstants.fontSizeSmall,
                               color: AppConstants.textSecondary,

@@ -29,7 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           final user = snapshot.data;
 
           if (user == null) {
-            return const Center(child: Text('No user data'));
+            return const Center(child: Text('Sem dados de usuário'));
           }
 
           return _buildProfile(user);
@@ -44,7 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // HEADER (foto + nome + email)
+          // HEADER (foto, nome, email)
           Row(
             children: [
               CircleAvatar(
@@ -116,7 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
-                  'Lifetime Savings',
+                  'Poupanças',
                   style: TextStyle(
                     fontSize: AppConstants.fontSizeBody,
                     fontWeight: FontWeight.w600,
@@ -124,7 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: AppConstants.spacingM),
                 Text(
-                  '\$${user.lifetimeSavings.toStringAsFixed(2)}',
+                  '€${user.lifetimeSavings.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
@@ -142,7 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     borderRadius: BorderRadius.circular(AppConstants.radiusL),
                   ),
                   child: Text(
-                    '+\$${user.monthlySavings.toStringAsFixed(2)}',
+                    '+€${user.monthlySavings.toStringAsFixed(2)}',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -151,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 6),
                 const Text(
-                  'this month',
+                  'Este Mês',
                   style: TextStyle(color: AppConstants.textSecondary),
                 ),
               ],
@@ -160,9 +160,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           const SizedBox(height: AppConstants.spacingL),
 
-          // USER DETAILS (localização + transporte)
+          // USER DETAILS (localização e transporte)
           const Text(
-            'Details',
+            'Detalhes',
             style: TextStyle(
               fontSize: AppConstants.fontSizeBody,
               fontWeight: FontWeight.bold,
@@ -174,7 +174,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.location_on_outlined),
             title: Text(
-              user.location.isNotEmpty ? user.location : 'No location defined',
+              user.location.isNotEmpty
+                  ? user.location
+                  : 'Sem Localização Definida',
             ),
           ),
 
@@ -184,15 +186,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: Text(
               user.transport.isNotEmpty
                   ? user.transport
-                  : 'No transport defined',
+                  : 'Sem Transporte Definido',
             ),
           ),
 
           const SizedBox(height: AppConstants.spacingL),
 
-          // RECENT TRIPS (mock por agora)
+          // RECENT TRIPS
           const Text(
-            'Recent Trips',
+            'Viagens Recentes',
             style: TextStyle(
               fontSize: AppConstants.fontSizeBody,
               fontWeight: FontWeight.bold,
@@ -216,7 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppConstants.errorColor,
               ),
-              child: const Text('Logout'),
+              child: const Text('Terminar Sessão'),
             ),
           ),
         ],
@@ -243,9 +245,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('\$${total.toStringAsFixed(2)}'),
+          Text('€${total.toStringAsFixed(2)}'),
           Text(
-            'Saved \$${saved.toStringAsFixed(2)}',
+            'Poupado €${saved.toStringAsFixed(2)}',
             style: const TextStyle(color: Colors.green),
           ),
         ],

@@ -10,9 +10,9 @@ class DatabaseService {
 
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // --- Estrutura do Firestore ---
-  // users/{userId}/lists/{listId}
-  // users/{userId}/summaries/{month}
+  //Estrutura do Firestore
+  //users/{userId}/lists/{listId}
+  //users/{userId}/summaries/{month}
 
   /// Referência para as listas de um utilizador
   static CollectionReference _listsRef(String userId) =>
@@ -22,7 +22,7 @@ class DatabaseService {
   static CollectionReference _summariesRef(String userId) =>
       _db.collection('users').doc(userId).collection('summaries');
 
-  /// Stream de listas de compras — atualiza automaticamente quando há mudanças
+  /// Stream de listas de compras atualiza automaticamente quando há mudanças
   static Stream<List<ShoppingList>> getShoppingLists(String userId) {
     return _listsRef(userId)
         .orderBy('createdAt', descending: true)
@@ -53,7 +53,7 @@ class DatabaseService {
     });
   }
 
-  /// Devolve as listas uma única vez — usado no bottom sheet do Explore
+  /// Devolve as listas uma única vez usado no bottom sheet do Explore
   static Future<List<ShoppingList>> getShoppingListsOnce(String userId) async {
     final snapshot = await _listsRef(
       userId,
@@ -61,7 +61,7 @@ class DatabaseService {
     return snapshot.docs.map((doc) => ShoppingList.fromFirestore(doc)).toList();
   }
 
-  /// Devolve os items de uma lista uma única vez — usado no RouteOptimizer
+  ///Devolve os items de uma lista uma única vez usado no RouteOptimizer
   static Future<List<ListItem>> getListItemsOnce({
     required String userId,
     required String listId,
@@ -73,7 +73,7 @@ class DatabaseService {
     return snapshot.docs.map((doc) => ListItem.fromFirestore(doc)).toList();
   }
 
-  /// Cria uma nova lista e devolve o ID gerado
+  ///Cria uma nova lista e devolve o ID gerado
   static Future<String> createShoppingList({
     required String userId,
     required String name,
@@ -89,7 +89,7 @@ class DatabaseService {
     return doc.id;
   }
 
-  /// Elimina uma lista de compras
+  ///Elimina uma lista de compras
   static Future<void> deleteShoppingList({
     required String userId,
     required String listId,
@@ -97,7 +97,7 @@ class DatabaseService {
     await _listsRef(userId).doc(listId).delete();
   }
 
-  /// Busca o resumo mensal atual
+  ///Busca o resumo mensal atual
   static Future<MonthlySummary?> getMonthlySummary({
     required String userId,
     required String month,
@@ -107,11 +107,11 @@ class DatabaseService {
     return MonthlySummary.fromFirestore(doc.data() as Map<String, dynamic>);
   }
 
-  /// Referência para os items de uma lista
+  ///Referência para os items de uma lista
   static CollectionReference _itemsRef(String userId, String listId) =>
       _listsRef(userId).doc(listId).collection('items');
 
-  /// Adiciona um produto e devolve o itemId gerado
+  ///Adiciona um produto e devolve o itemId gerado
   static Future<String?> addItemToList({
     required String userId,
     required String listId,
@@ -120,7 +120,7 @@ class DatabaseService {
     required String productImageUrl,
     required double averagePrice,
   }) async {
-    // Verifica duplicados
+    //Verifica duplicados
     final existing = await _itemsRef(
       userId,
       listId,
@@ -137,7 +137,7 @@ class DatabaseService {
       'addedAt': FieldValue.serverTimestamp(),
     });
 
-    // Atualiza o contador e total da lista
+    //Atualiza o contador e total da lista
     await _listsRef(userId).doc(listId).update({
       'itemCount': FieldValue.increment(1),
       'estimatedTotal': FieldValue.increment(averagePrice),
@@ -146,7 +146,7 @@ class DatabaseService {
     return doc.id;
   }
 
-  /// Remove um produto de uma lista
+  ///Remove um produto de uma lista
   static Future<void> removeItemFromList({
     required String userId,
     required String listId,
@@ -155,14 +155,14 @@ class DatabaseService {
   }) async {
     await _itemsRef(userId, listId).doc(itemId).delete();
 
-    // Atualiza o contador e total estimado da lista
+    //Atualiza o contador e total estimado da lista
     await _listsRef(userId).doc(listId).update({
       'itemCount': FieldValue.increment(-1),
       'estimatedTotal': FieldValue.increment(-averagePrice),
     });
   }
 
-  /// Stream de items de uma lista
+  ///Stream de items de uma lista
   static Stream<List<ListItem>> getListItems({
     required String userId,
     required String listId,

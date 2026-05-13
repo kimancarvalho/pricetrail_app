@@ -11,7 +11,7 @@ class AuthService {
 
   static final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  /// Utilizador atualmente autenticado — null se não estiver logado
+  /// Utilizador atualmente autenticado null se não estiver logado
   static User? get currentUser => _auth.currentUser;
 
   /// Stream que emite sempre que o estado de autenticação muda
@@ -33,65 +33,64 @@ class AuthService {
   /// Faz login com a conta Google.
   /// Retorna UserCredential em caso de sucesso, null se o utilizador cancelar.
   static Future<UserCredential?> signInWithGoogle() async {
-  try {
-    if (kIsWeb) {
-      // WEB → usar popup do Firebase diretamente
-      final provider = GoogleAuthProvider();
-      
-      // força escolha de conta
-      provider.setCustomParameters({
-        'prompt': 'select_account',
-      });
+    try {
+      if (kIsWeb) {
+        // WEB → usar popup do Firebase diretamente
+        final provider = GoogleAuthProvider();
 
-      return await _auth.signInWithPopup(provider);
-    } else {
-      // MOBILE → usar google_sign_in
-      final googleSignIn = GoogleSignIn.instance;
+        // força escolha de conta
+        provider.setCustomParameters({'prompt': 'select_account'});
 
-      final googleUser = await googleSignIn.authenticate();
-      final googleAuth = googleUser.authentication;
+        return await _auth.signInWithPopup(provider);
+      } else {
+        // MOBILE usar google_sign_in
+        final googleSignIn = GoogleSignIn.instance;
 
-      final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
+        final googleUser = await googleSignIn.authenticate();
+        final googleAuth = googleUser.authentication;
 
-      return await _auth.signInWithCredential(credential);
+        final credential = GoogleAuthProvider.credential(
+          idToken: googleAuth.idToken,
+        );
+
+        return await _auth.signInWithCredential(credential);
+      }
+    } catch (e) {
+      debugPrint("Erro no Google Sign-In: $e");
+      rethrow;
     }
-  } catch (e) {
-    debugPrint("Erro no Google Sign-In: $e");
-    rethrow;
   }
-}
-static Future<UserCredential?> signInWithApple() async {
-  try {
-    if (kIsWeb) {
-      // Apple no Web (Firebase popup)
-      final provider = OAuthProvider("apple.com");
-      provider.addScope('email');
-      provider.addScope('name');
 
-      return await _auth.signInWithPopup(provider);
-    } else {
-      // Apple no iOS
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
+  static Future<UserCredential?> signInWithApple() async {
+    try {
+      if (kIsWeb) {
+        // Apple no Web (Firebase popup)
+        final provider = OAuthProvider("apple.com");
+        provider.addScope('email');
+        provider.addScope('name');
 
-      final oauthCredential = OAuthProvider("apple.com").credential(
-        idToken: appleCredential.identityToken,
-        accessToken: appleCredential.authorizationCode,
-      );
+        return await _auth.signInWithPopup(provider);
+      } else {
+        // Apple no iOS
+        final appleCredential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+        );
 
-      return await _auth.signInWithCredential(oauthCredential);
+        final oauthCredential = OAuthProvider("apple.com").credential(
+          idToken: appleCredential.identityToken,
+          accessToken: appleCredential.authorizationCode,
+        );
+
+        return await _auth.signInWithCredential(oauthCredential);
+      }
+    } catch (e) {
+      debugPrint("Erro Apple Sign-In: $e");
+      rethrow;
     }
-  } catch (e) {
-    debugPrint("Erro Apple Sign-In: $e");
-    rethrow;
   }
-}
 
   /// Regista um novo utilizador com email e password.
   /// Lança [FirebaseAuthException] em caso de erro.
