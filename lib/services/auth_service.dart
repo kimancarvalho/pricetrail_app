@@ -5,7 +5,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 /// Serviço responsável por toda a lógica de autenticação.
 /// Centralizar aqui isola a dependência do Firebase Auth
-/// do resto da app — fácil de testar e de substituir no futuro.
+/// do resto da app - fácil de testar e de substituir no futuro.
 class AuthService {
   AuthService._(); //Não permite ser instanciada
 
