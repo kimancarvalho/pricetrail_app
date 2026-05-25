@@ -35,7 +35,7 @@ class AuthService {
   static Future<UserCredential?> signInWithGoogle() async {
     try {
       if (kIsWeb) {
-        // WEB → usar popup do Firebase diretamente
+        // WEB usar popup do Firebase diretamente
         final provider = GoogleAuthProvider();
 
         // força escolha de conta
