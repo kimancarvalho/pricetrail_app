@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:pricetrail/services/directions_service.dart';
 import '../../settings/app_constants.dart';
 import '../../services/database_service.dart';
 import '../../services/location_service.dart';
@@ -27,8 +28,10 @@ class _RouteScreenState extends State<RouteScreen> {
   final String _userId = FirebaseAuth.instance.currentUser!.uid;
 
   OptimizedRoute? _optimizedRoute;
+  LatLng? _userLocation;
   bool _isLoading = true;
   String? _errorMessage;
+  List<LatLng> _routePoints = [];
 
   // Índice da loja actualmente seleccionada no bottom sheet
   int _selectedStoreIndex = 0;
@@ -76,9 +79,19 @@ class _RouteScreenState extends State<RouteScreen> {
       userLocation: userLocation,
     );
 
+    // Busca os pontos reais da rota seguindo estradas
+    if (route.storesInOrder.isNotEmpty) {
+      final routePoints = await DirectionsService.getRoutePoints(
+        origin: userLocation,
+        waypoints: route.storesInOrder.map((s) => s.location).toList(),
+      );
+      setState(() => _routePoints = routePoints);
+    }
+
     setState(() {
       _optimizedRoute = route;
       _isLoading = false;
+      _userLocation = userLocation;
     });
 
     // Centra o mapa na localização do utilizador
@@ -90,7 +103,20 @@ class _RouteScreenState extends State<RouteScreen> {
     final markers = <Marker>{};
     final stores = _optimizedRoute?.storesInOrder ?? [];
 
-    // Marcadores das lojas com número de ordem
+    // Marcador do utilizador  vermelho por omissão
+    if (_userLocation != null) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('user'),
+          position: _userLocation!,
+          infoWindow: const InfoWindow(title: 'A tua localização'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          zIndex: 2, //  fica por cima dos outros marcadores
+        ),
+      );
+    }
+
+    // Marcadores das lojas
     for (int i = 0; i < stores.length; i++) {
       final store = stores[i];
       markers.add(
@@ -100,7 +126,7 @@ class _RouteScreenState extends State<RouteScreen> {
           infoWindow: InfoWindow(
             title: '${i + 1}. ${store.name}',
             snippet:
-                '${store.itemsToBuy.length} itens • €${store.totalCost.toStringAsFixed(2)}',
+                '${store.itemsToBuy.length} items - €${store.totalCost.toStringAsFixed(2)}',
           ),
           icon: BitmapDescriptor.defaultMarkerWithHue(
             i == _selectedStoreIndex
@@ -108,6 +134,7 @@ class _RouteScreenState extends State<RouteScreen> {
                 : BitmapDescriptor.hueOrange,
           ),
           onTap: () => setState(() => _selectedStoreIndex = i),
+          zIndex: 1,
         ),
       );
     }
@@ -117,19 +144,31 @@ class _RouteScreenState extends State<RouteScreen> {
 
   /// Constrói a polyline da rota entre lojas
   Set<Polyline> _buildPolylines() {
-    if (_optimizedRoute == null) return {};
+    if (_optimizedRoute == null || _userLocation == null) return {};
+    if (_optimizedRoute!.storesInOrder.isEmpty) return {};
 
-    final stores = _optimizedRoute!.storesInOrder;
-    if (stores.isEmpty) return {};
+    // Usa pontos reais da Routes API se disponíveis
+    // senão usa linha reta como fallback
+    final points = _routePoints.isNotEmpty
+        ? _routePoints
+        : <LatLng>[
+            _userLocation!,
+            ..._optimizedRoute!.storesInOrder.map((s) => s.location),
+          ];
 
-    // Pontos da rota — começamos do utilizador
-    // Por agora ligamos os pontos directamente (sem directions API)
     return {
       Polyline(
         polylineId: const PolylineId('route'),
         color: AppConstants.primaryColor,
-        width: 4,
-        points: stores.map((s) => s.location).toList(),
+        width: 5,
+        points: points,
+        // Linha sólida para rota real, tracejada para fallback
+        patterns: _routePoints.isNotEmpty
+            ? [] // sólida - rota real
+            : [
+                PatternItem.dash(20),
+                PatternItem.gap(10),
+              ], // tracejada - fallback
       ),
     };
   }
@@ -163,15 +202,24 @@ class _RouteScreenState extends State<RouteScreen> {
         children: [
           // Mapa
           GoogleMap(
-            initialCameraPosition: const CameraPosition(
-              target: LatLng(38.5226, -8.8383),
+            initialCameraPosition: CameraPosition(
+              target: _userLocation ?? const LatLng(38.5226, -8.8383),
               zoom: 14,
             ),
-            onMapCreated: (controller) => _mapController = controller,
+            onMapCreated: (controller) {
+              _mapController = controller;
+              // Centra no utilizador assim que o mapa carrega
+              if (_userLocation != null) {
+                _mapController?.animateCamera(
+                  CameraUpdate.newLatLngZoom(_userLocation!, 14),
+                );
+              }
+            },
             markers: _optimizedRoute != null ? _buildMarkers() : {},
             polylines: _optimizedRoute != null ? _buildPolylines() : {},
             myLocationEnabled: true,
             myLocationButtonEnabled: true,
+            zoomControlsEnabled: true,
           ),
 
           // Loading
@@ -256,7 +304,7 @@ class _RouteScreenState extends State<RouteScreen> {
           ),
           const SizedBox(height: AppConstants.spacingM),
 
-          // Resumo — poupança estimada
+          // Resumo  poupança estimada
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -376,7 +424,7 @@ class _RouteScreenState extends State<RouteScreen> {
                             ),
                           ),
                           Text(
-                            '${store.itemsToBuy.length} itens • ${store.distanceKm.toStringAsFixed(1)} km',
+                            '${store.itemsToBuy.length} itens ${store.distanceKm.toStringAsFixed(1)} km',
                             style: const TextStyle(
                               fontSize: AppConstants.fontSizeSmall,
                               color: AppConstants.textSecondary,

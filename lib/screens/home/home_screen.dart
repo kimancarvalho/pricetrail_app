@@ -7,7 +7,7 @@ import '../../services/database_service.dart';
 import '../../screens/details/listdetail_screen.dart';
 import '../../services/notification_service.dart';
 
-/// Home Dashboard — ecrã principal da app.
+/// Home Dashboard  ecrã principal da app.
 /// Mostra o resumo mensal e as listas de compras do utilizador.
 class HomeScreen extends StatefulWidget {
   /// Callback chamado quando o utilizador clica numa lista
@@ -16,14 +16,18 @@ class HomeScreen extends StatefulWidget {
   onNavigateToExplore;
   final Function(String listId, String listName) onNavigateToRoute;
 
-  const HomeScreen({super.key, required this.onNavigateToExplore,required this.onNavigateToRoute,});
+  const HomeScreen({
+    super.key,
+    required this.onNavigateToExplore,
+    required this.onNavigateToRoute,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Utilizador atual — nunca é null porque chegámos aqui autenticados
+  // Utilizador atual  nunca é null porque chegámos aqui autenticados
   final String _userId = FirebaseAuth.instance.currentUser!.uid;
 
   // Mês atual formatado como chave do Firestore (ex: "2025-03")
@@ -58,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(AppConstants.radiusM),
         ),
         title: const Text(
-          'New Shopping List',
+          'Nova Lista de Compras',
           style: TextStyle(
             fontSize: AppConstants.fontSizeTitle,
             fontWeight: FontWeight.bold,
@@ -74,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text(
-              'Cancel',
+              'Cancelar',
               style: TextStyle(color: AppConstants.textSecondary),
             ),
           ),
@@ -86,8 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 name: controller.text.trim(),
               );
               await NotificationService.showNotification(
-                title: 'Lista Criada! 📝',
-                body: 'A tua lista "${controller.text.trim()}" está pronta a usar.',
+                title: 'Lista Criada!',
+                body:
+                    'A tua lista "${controller.text.trim()}" está pronta a usar.',
               );
               if (context.mounted) Navigator.pop(context);
             },
@@ -98,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 vertical: AppConstants.spacingS,
               ),
             ),
-            child: const Text('Create'),
+            child: const Text('Criar'),
           ),
         ],
       ),
@@ -306,7 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Mensagem de crescimento
           if (growth > 0)
             Text(
-              "You've saved ${growth.toStringAsFixed(0)}% more than last month!",
+              "Poupou ${growth.toStringAsFixed(0)}% mais do que o mês passado!",
               style: const TextStyle(
                 color: AppConstants.surfaceColor,
                 fontSize: AppConstants.fontSizeSmall,
@@ -321,7 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Título da secção de listas
   Widget _buildSectionTitle() {
     return const Text(
-      'My Shopping Lists',
+      'Minhas Listas de Compras',
       style: TextStyle(
         fontSize: AppConstants.fontSizeTitle,
         fontWeight: FontWeight.bold,
@@ -330,7 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Lista de compras via StreamBuilder — atualiza em tempo real
+  /// Lista de compras via StreamBuilder  atualiza em tempo real
   Widget _buildShoppingLists() {
     return StreamBuilder<List<ShoppingList>>(
       stream: DatabaseService.getShoppingLists(_userId),
@@ -369,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: AppConstants.spacingS),
                 const Text(
-                  'Tap + to create your first shopping list',
+                  'Clicar + para criar a sua primeira lista de compras',
                   style: TextStyle(color: AppConstants.textSecondary),
                 ),
               ],
@@ -465,8 +470,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: AppConstants.spacingXS),
                       Text(
                         list.isCompleted
-                            ? 'Completed ${_formatDate(list.completedAt!)}'
-                            : '${list.itemCount} items • Est. \$${list.estimatedTotal.toStringAsFixed(2)}',
+                            ? 'Concluída ${_formatDate(list.completedAt!)}'
+                            : '${list.itemCount} itens - Est. €${list.estimatedTotal.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontSize: AppConstants.fontSizeSmall,
                           color: AppConstants.textSecondary,
@@ -487,7 +492,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Converte o número do mês no nome — ex: 3 → "March"
+  /// Converte o número do mês no nome  ex: 3  "March"
   String _getMonthName(int month) {
     const months = [
       'January',
@@ -506,7 +511,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return months[month - 1];
   }
 
-  /// Formata uma data para exibição — ex: "yesterday" ou "Oct 12"
+  /// Formata uma data para exibição  ex: "yesterday" ou "Oct 12"
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date).inDays;

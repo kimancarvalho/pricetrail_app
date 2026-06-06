@@ -26,7 +26,6 @@ class _MainScreenState extends State<MainScreen> {
   //chamado pelo HomeScreen quando o utilizador clica numa lista. Faz duas coisas: define a lista ativa
   //E muda o tab para o Explore
   void _navigateToExplore(String listId, String listName, int itemCount) {
-    print("DEBUG 2: MainScreen recebeu o comando para mudar para a Rota!");
     setState(() {
       _activeListId = listId;
       _activeListName = listName;
