@@ -4,6 +4,8 @@ import '../../settings/app_constants.dart';
 import '../../models/app_user.dart';
 import '../../services/user_service.dart';
 import '../../screens/profile/settings_screens.dart';
+import '../../models/shopping_list.dart';
+import '../../services/database_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -202,9 +204,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: AppConstants.spacingM),
 
-          _buildTripTile('Continente', 'Oct 12, 2023', 84.20, 18.50),
-          const Divider(),
-          _buildTripTile('Pingo Doce', 'Oct 05, 2023', 42.10, 5.20),
+          StreamBuilder<List<ShoppingList>>(
+            stream: DatabaseService.getShoppingLists(_userId),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final todasAsListas = snapshot.data ?? [];
+
+              // Filtra só as listas concluídas
+              final trips = todasAsListas
+                  .where((lista) => lista.isCompleted)
+                  .toList();
+
+              if (trips.isEmpty) {
+                return const Text(
+                  'Ainda não tens viagens concluídas.',
+                  style: TextStyle(color: AppConstants.textSecondary),
+                );
+              }
+
+              return Column(
+                children: trips
+                    .map(
+                      (trip) => _buildTripTile(
+                        trip.name,
+                        trip.completedAt != null
+                            ? '${trip.completedAt!.day}/${trip.completedAt!.month}/${trip.completedAt!.year}'
+                            : '',
+                        trip.estimatedTotal,
+                        0, // poupança real viria do MonthlySummary por agora 0
+                      ),
+                    )
+                    .toList(),
+              );
+            },
+          ),
 
           const SizedBox(height: AppConstants.spacingL),
 
