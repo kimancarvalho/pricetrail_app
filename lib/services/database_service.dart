@@ -89,6 +89,16 @@ class DatabaseService {
     return doc.id;
   }
 
+  //Marca uma lista como concluída
+  static Future<void> completeShoppingList({
+    required String userId,
+    required String listId,
+  }) async {
+    await _listsRef(
+      userId,
+    ).doc(listId).update({'isCompleted': true, 'completedAt': Timestamp.now()});
+  }
+
   ///Elimina uma lista de compras
   static Future<void> deleteShoppingList({
     required String userId,

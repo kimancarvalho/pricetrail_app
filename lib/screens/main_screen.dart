@@ -42,6 +42,14 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  void _onListCompleted() {
+    setState(() {
+      _currentIndex = AppConstants.tabLists;
+      _activeRouteListId = null;
+      _activeRouteListName = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,6 +71,7 @@ class _MainScreenState extends State<MainScreen> {
             key: ValueKey('$_activeRouteListId'),
             listId: _activeRouteListId,
             listName: _activeRouteListName,
+            onListCompleted: _onListCompleted,
           ),
           const ProfileScreen(),
         ],

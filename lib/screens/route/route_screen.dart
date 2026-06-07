@@ -11,12 +11,14 @@ class RouteScreen extends StatefulWidget {
   final String? listId;
   final String? listName;
   final int itemCount;
+  final VoidCallback? onListCompleted;
 
   const RouteScreen({
     super.key,
     this.listId,
     this.listName,
     this.itemCount = 0,
+    this.onListCompleted,
   });
 
   @override
@@ -445,6 +447,25 @@ class _RouteScreenState extends State<RouteScreen> {
               ),
             );
           }),
+          const SizedBox(height: AppConstants.spacingM),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () async {
+                await DatabaseService.completeShoppingList(
+                  userId: _userId,
+                  listId: widget.listId!,
+                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Lista concluída!')),
+                  );
+                  widget.onListCompleted?.call();
+                }
+              },
+              child: const Text('Concluir Lista'),
+            ),
+          ),
         ],
       ),
     );
