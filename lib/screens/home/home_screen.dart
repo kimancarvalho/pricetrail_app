@@ -135,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Cabeçalho com título e badge de notificações
+  /// Cabeçalho com título
   Widget _buildHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,46 +147,6 @@ class _HomeScreenState extends State<HomeScreen> {
             fontWeight: FontWeight.bold,
             color: AppConstants.primaryColor,
           ),
-        ),
-        // Badge de notificações
-        Stack(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppConstants.primaryLight,
-                borderRadius: BorderRadius.circular(AppConstants.radiusXL),
-              ),
-              child: const Icon(
-                Icons.notifications_outlined,
-                color: AppConstants.primaryColor,
-              ),
-            ),
-            // Badge com número de notificações
-            Positioned(
-              right: 0,
-              top: 0,
-              child: Container(
-                width: 18,
-                height: 18,
-                decoration: const BoxDecoration(
-                  color: AppConstants.errorColor,
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Text(
-                    '2',
-                    style: TextStyle(
-                      color: AppConstants.surfaceColor,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       ],
     );
@@ -486,31 +446,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Converte o número do mês no nome  ex: 3  "March"
+  /// Converte o número do mês no nome  ex: 3  "Março"
   String _getMonthName(int month) {
     const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
+      'Janeiro',
+      'Fevereiro',
+      'Março',
+      'Abril',
+      'Maio',
+      'Junho',
+      'Julho',
+      'Agosto',
+      'Setembro',
+      'Outubro',
+      'Novembro',
+      'Dezembro',
     ];
     return months[month - 1];
   }
 
-  /// Formata uma data para exibição  ex: "yesterday" ou "Oct 12"
+  /// Formata uma data para exibição  ex: "Ontem" ou "Oct 12"
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date).inDays;
-    if (diff == 0) return 'today';
-    if (diff == 1) return 'yesterday';
+    if (diff == 0) return 'Hoje';
+    if (diff == 1) return 'Ontem';
     return '${_getMonthName(date.month).substring(0, 3)} ${date.day}';
   }
 }
