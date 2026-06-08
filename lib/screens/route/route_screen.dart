@@ -455,7 +455,20 @@ class _RouteScreenState extends State<RouteScreen> {
                 await DatabaseService.completeShoppingList(
                   userId: _userId,
                   listId: widget.listId!,
+                  savedAmount: _optimizedRoute!.estimatedSavings,
                 );
+
+                // Actualiza o resumo mensal
+                final currentMonth =
+                    '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}';
+
+                await DatabaseService.updateMonthlySummary(
+                  userId: _userId,
+                  month: currentMonth,
+                  totalSpent: _optimizedRoute!.totalCost,
+                  totalSaved: _optimizedRoute!.estimatedSavings,
+                );
+
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Lista concluída!')),

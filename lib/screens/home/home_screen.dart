@@ -34,23 +34,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final String _currentMonth =
       '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}';
 
-  MonthlySummary? _summary;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSummary();
-  }
-
-  /// Carrega o resumo mensal do Firestore
-  Future<void> _loadSummary() async {
-    final summary = await DatabaseService.getMonthlySummary(
-      userId: _userId,
-      month: _currentMonth,
-    );
-    if (mounted) setState(() => _summary = summary);
-  }
-
   /// Mostra o dialog para criar uma nova lista
   void _showCreateListDialog() {
     final controller = TextEditingController();
@@ -121,10 +104,21 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _buildHeader(),
               const SizedBox(height: AppConstants.spacingL),
-              if (_summary != null) ...[
-                _buildMonthlySummaryCard(),
-                const SizedBox(height: AppConstants.spacingL),
-              ],
+              StreamBuilder<MonthlySummary?>(
+                stream: DatabaseService.getMonthlySummaryStream(
+                  userId: _userId,
+                  month: _currentMonth,
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.data == null) return const SizedBox.shrink();
+                  return Column(
+                    children: [
+                      _buildMonthlySummaryCard(snapshot.data!),
+                      const SizedBox(height: AppConstants.spacingL),
+                    ],
+                  );
+                },
+              ),
               _buildSectionTitle(),
               const SizedBox(height: AppConstants.spacingM),
               Expanded(child: _buildShoppingLists()),
@@ -199,9 +193,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// Card verde de resumo mensal
-  Widget _buildMonthlySummaryCard() {
+  Widget _buildMonthlySummaryCard(MonthlySummary summary) {
     final monthName = _getMonthName(DateTime.now().month);
-    final growth = _summary!.savingsGrowth;
+    final growth = summary.savingsGrowth;
 
     return Container(
       width: double.infinity,
@@ -218,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Monthly\nOverview',
+                'Resumo\nMensal',
                 style: TextStyle(
                   color: AppConstants.surfaceColor,
                   fontSize: AppConstants.fontSizeTitle,
@@ -254,14 +248,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Total Spent',
+                    'Total Gasto',
                     style: TextStyle(
                       color: AppConstants.surfaceColor,
                       fontSize: AppConstants.fontSizeSmall,
                     ),
                   ),
                   Text(
-                    '\$${_summary!.totalSpent.toStringAsFixed(2)}',
+                    '€${summary.totalSpent.toStringAsFixed(2)}',
                     style: const TextStyle(
                       color: AppConstants.surfaceColor,
                       fontSize: AppConstants.fontSizeDisplay,
@@ -274,14 +268,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   const Text(
-                    'Total Saved',
+                    'Total Poupado',
                     style: TextStyle(
                       color: AppConstants.surfaceColor,
                       fontSize: AppConstants.fontSizeSmall,
                     ),
                   ),
                   Text(
-                    '\$${_summary!.totalSaved.toStringAsFixed(2)}',
+                    '€${summary.totalSaved.toStringAsFixed(2)}',
                     style: const TextStyle(
                       color: AppConstants.surfaceColor,
                       fontSize: AppConstants.fontSizeDisplay,
@@ -298,8 +292,8 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(AppConstants.radiusS),
             child: LinearProgressIndicator(
               value:
-                  _summary!.totalSaved /
-                  (_summary!.totalSpent + _summary!.totalSaved),
+                  summary.totalSaved /
+                  (summary.totalSpent + summary.totalSaved),
               backgroundColor: AppConstants.surfaceColor.withValues(alpha: 0.3),
               valueColor: const AlwaysStoppedAnimation<Color>(
                 AppConstants.surfaceColor,

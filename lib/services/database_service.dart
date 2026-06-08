@@ -93,10 +93,40 @@ class DatabaseService {
   static Future<void> completeShoppingList({
     required String userId,
     required String listId,
+    required double savedAmount,
   }) async {
-    await _listsRef(
-      userId,
-    ).doc(listId).update({'isCompleted': true, 'completedAt': Timestamp.now()});
+    await _listsRef(userId).doc(listId).update({
+      'isCompleted': true,
+      'completedAt': Timestamp.now(),
+      'savedAmount': savedAmount,
+    });
+  }
+
+  /// Actualiza o resumo mensal quando uma lista é concluída
+  static Future<void> updateMonthlySummary({
+    required String userId,
+    required String month,
+    required double totalSpent,
+    required double totalSaved,
+  }) async {
+    final ref = _summariesRef(userId).doc(month);
+    final doc = await ref.get();
+
+    if (!doc.exists) {
+      // Cria o documento se não existir
+      await ref.set({
+        'month': month,
+        'totalSpent': totalSpent,
+        'totalSaved': totalSaved,
+        'previousMonthSaved': 0,
+      });
+    } else {
+      // Incrementa os valores existentes
+      await ref.update({
+        'totalSpent': FieldValue.increment(totalSpent),
+        'totalSaved': FieldValue.increment(totalSaved),
+      });
+    }
   }
 
   ///Elimina uma lista de compras
@@ -107,14 +137,15 @@ class DatabaseService {
     await _listsRef(userId).doc(listId).delete();
   }
 
-  ///Busca o resumo mensal atual
-  static Future<MonthlySummary?> getMonthlySummary({
+  /// Stream do resumo mensal - actualiza em tempo real
+  static Stream<MonthlySummary?> getMonthlySummaryStream({
     required String userId,
     required String month,
-  }) async {
-    final doc = await _summariesRef(userId).doc(month).get();
-    if (!doc.exists) return null;
-    return MonthlySummary.fromFirestore(doc.data() as Map<String, dynamic>);
+  }) {
+    return _summariesRef(userId).doc(month).snapshots().map((doc) {
+      if (!doc.exists) return null;
+      return MonthlySummary.fromFirestore(doc.data() as Map<String, dynamic>);
+    });
   }
 
   ///Referência para os items de uma lista

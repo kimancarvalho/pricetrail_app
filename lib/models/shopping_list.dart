@@ -6,6 +6,7 @@ class ShoppingList {
   final String name;
   final int itemCount;
   final double estimatedTotal;
+  final double savedAmount;
   final bool isCompleted;
   final DateTime createdAt;
   final DateTime? completedAt;
@@ -17,6 +18,7 @@ class ShoppingList {
     required this.estimatedTotal,
     required this.isCompleted,
     required this.createdAt,
+    this.savedAmount = 0,
     this.completedAt,
   });
 
@@ -28,6 +30,7 @@ class ShoppingList {
       name: data['name'] ?? '',
       itemCount: data['itemCount'] ?? 0,
       estimatedTotal: (data['estimatedTotal'] ?? 0).toDouble(),
+      savedAmount: (data['savedAmount'] ?? 0).toDouble(),
       isCompleted: data['isCompleted'] ?? false,
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       completedAt: data['completedAt'] != null
@@ -42,6 +45,7 @@ class ShoppingList {
       'name': name,
       'itemCount': itemCount,
       'estimatedTotal': estimatedTotal,
+      'savedAmount': savedAmount,
       'isCompleted': isCompleted,
       'createdAt': Timestamp.fromDate(createdAt),
       'completedAt': completedAt != null

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pricetrail/models/monthly_summary.dart';
 import '../../settings/app_constants.dart';
 import '../../models/app_user.dart';
 import '../../services/user_service.dart';
@@ -83,7 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-              // botão settings (opcional)
+              // botão settings
               Container(
                 width: 40,
                 height: 40,
@@ -118,7 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
-                  'Poupanças',
+                  'Poupança',
                   style: TextStyle(
                     fontSize: AppConstants.fontSizeBody,
                     fontWeight: FontWeight.w600,
@@ -134,27 +135,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: AppConstants.spacingM),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppConstants.spacingM,
-                    vertical: AppConstants.spacingS,
+
+                // StreamBuilder para o valor do mês actualiza em tempo real
+                StreamBuilder<MonthlySummary?>(
+                  stream: DatabaseService.getMonthlySummaryStream(
+                    userId: _userId,
+                    month:
+                        '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}',
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(AppConstants.radiusL),
-                  ),
-                  child: Text(
-                    '+€${user.monthlySavings.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Este Mês',
-                  style: TextStyle(color: AppConstants.textSecondary),
+                  builder: (context, snapshot) {
+                    // Valor do mês 0 se ainda não há resumo
+                    final monthlySaved = snapshot.data?.totalSaved ?? 0.0;
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppConstants.spacingM,
+                            vertical: AppConstants.spacingS,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(
+                              AppConstants.radiusL,
+                            ),
+                          ),
+                          child: Text(
+                            '+€${monthlySaved.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: AppConstants.spacingS),
+                        const Text(
+                          'Este Mês',
+                          style: TextStyle(color: AppConstants.textSecondary),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -162,7 +184,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           const SizedBox(height: AppConstants.spacingL),
 
-          // USER DETAILS (localização e transporte)
+          // USER DETAILS
           const Text(
             'Detalhes',
             style: TextStyle(
@@ -184,7 +206,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.directions_car_outlined),
+            leading: Icon(
+              AppConstants.transportOptions
+                  .firstWhere((option) => option.value == user.transport)
+                  .icon,
+            ),
             title: Text(
               user.transport.isNotEmpty
                   ? user.transport
@@ -234,7 +260,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ? '${trip.completedAt!.day}/${trip.completedAt!.month}/${trip.completedAt!.year}'
                             : '',
                         trip.estimatedTotal,
-                        0, // poupança real viria do MonthlySummary por agora 0
+                        trip.savedAmount,
                       ),
                     )
                     .toList(),
