@@ -66,6 +66,7 @@ class _MainScreenState extends State<MainScreen> {
             activeListId: _activeListId,
             activeListName: _activeListName,
             initialItemCount: _activeListItemCount,
+            onNavigateToRoute: _navigateToRoute,
           ),
           RouteScreen(
             key: ValueKey('$_activeRouteListId'),

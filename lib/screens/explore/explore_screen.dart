@@ -15,6 +15,7 @@ class ExploreScreen extends StatefulWidget {
   final String? activeListId;
   final String? activeListName;
   final int initialItemCount;
+  final Function(String listId, String listName)? onNavigateToRoute;
 
   /// Callback para notificar o MainScreen quando uma lista é selecionada
   final Function(String listId, String listName)? onListSelected;
@@ -25,6 +26,7 @@ class ExploreScreen extends StatefulWidget {
     this.activeListName,
     this.initialItemCount = 0,
     this.onListSelected,
+    this.onNavigateToRoute,
   });
 
   @override
@@ -253,7 +255,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
             const SizedBox(height: AppConstants.spacingL),
             const Text(
-              'Add to a list',
+              'Adicionar a uma lista',
               style: TextStyle(
                 fontSize: AppConstants.fontSizeTitle,
                 fontWeight: FontWeight.bold,
@@ -733,7 +735,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       padding: const EdgeInsets.all(AppConstants.spacingL),
       child: ElevatedButton(
         onPressed: () {
-          // TODO — navegar para Route Screen com os produtos selecionados
+          widget.onNavigateToRoute?.call(_activeListId!, _activeListName!);
         },
         child: Text('Otimizar Rota ($_totalItemCount Itens)'),
       ),
