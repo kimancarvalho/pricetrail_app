@@ -207,10 +207,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: Icon(
-              AppConstants.transportOptions
-                  .firstWhere((option) => option.value == user.transport)
-                  .icon,
-            ),
+  AppConstants.transportOptions
+      .where((option) => option.value == user.transport)
+      .isNotEmpty
+      ? AppConstants.transportOptions
+          .firstWhere((option) => option.value == user.transport)
+          .icon
+      : Icons.directions_walk,
+),
             title: Text(
               user.transport.isNotEmpty
                   ? user.transport
